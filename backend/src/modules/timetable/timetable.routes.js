@@ -2,6 +2,7 @@ import { Router } from "express";
 import { createClass } from "./timetable.controller.js";
 import { protect } from "../../middlewares/auth.middleware.js";
 import { allowRoles } from "../../middlewares/role.middleware.js";
+import { generateTimetableController } from "./timetable.controller.js";
 
 const router = Router();
 
@@ -11,6 +12,13 @@ router.post(
   protect,
   allowRoles("ADMIN"),
   createClass
+);
+
+router.post(
+  "/generate",
+  protect,
+  role("admin"),
+  generateTimetableController
 );
 
 export default router;
