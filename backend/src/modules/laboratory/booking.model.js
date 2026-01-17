@@ -19,6 +19,11 @@ const bookingSchema = new mongoose.Schema(
       required: true
     },
 
+    nowTime: {
+      type: Date,
+      required: true
+    },
+
     startTime: {
       type: Date,
       required: true
@@ -38,7 +43,7 @@ const bookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-bookingSchema.pre("save", function (next) {
+bookingSchema.pre("save", function () {
   const now = new Date();
 
   if (this.endTime <= this.startTime) {
@@ -60,8 +65,6 @@ bookingSchema.pre("save", function (next) {
       new Error("Booking start time must be within the next 3 days")
     );
   }
-
-  next();
 });
 
 export default mongoose.model("Booking", bookingSchema);

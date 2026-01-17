@@ -1,4 +1,4 @@
-import { createEquipment, updateEquipment, createBooking, cancelBooking } from "./lab.service.js";
+import { createEquipment, updateEquipmentService, createBooking, cancelBooking } from "./lab.service.js";
 import User from "../users/user.model.js";
 
 export const addEquipment = async (req, res) => {
@@ -51,7 +51,7 @@ export const updateEquipment = async (req, res) => {
   try {
     const { equipmentNumber } = req.params;
 
-    const equipment = await updateEquipment({
+    const equipment = await updateEquipmentService({
       equipmentNumber,
       updates: req.body,
       requesterRole: req.user.role,

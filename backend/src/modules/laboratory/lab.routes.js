@@ -2,7 +2,7 @@ import express from "express";
 import { addEquipment, updateEquipment, bookEquipment, cancelEquipmentBooking,  } from "./lab.controller.js";
 import { protect } from "../../middlewares/auth.middleware.js";
 import { allowRoles } from "../../middlewares/role.middleware.js"
-import { getEquipmentFreeSlots } from "./lab.service.js";
+import { getFreeSlots } from "./lab.service.js";
 
 const router = express.Router();
 
@@ -14,7 +14,7 @@ router.post(
 );
 
 router.patch(
-  "/equipment/:equipmentNumber",
+  "/updateEquipment/:equipmentNumber",
   protect,
   allowRoles("admin", "lab_admin"),
   updateEquipment
@@ -38,7 +38,7 @@ router.get(
   "/equipment/:equipmentNumber/free-slots",
   protect,
   allowRoles("student"),
-  getEquipmentFreeSlots
+  getFreeSlots
 );
 
 export default router;

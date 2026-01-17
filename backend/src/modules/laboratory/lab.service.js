@@ -45,7 +45,7 @@ export const createEquipment = async ({
   return equipment;
 };
 
-export const updateEquipment = async ({
+export const updateEquipmentService = async ({
   equipmentNumber,
   updates,
   requesterRole,
@@ -109,6 +109,7 @@ export const createBooking = async ({
     equipment: equipment._id,
     equipmentNumber,
     bookedBy: userId,
+    nowTime: now,
     startTime,
     endTime
   });
