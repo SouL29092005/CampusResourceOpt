@@ -1,2 +1,2 @@
-# CampusResourceOpt
-Campus TimeTable and Resource Optimizer System
+
+Campus TimeTable and Resource Management System
