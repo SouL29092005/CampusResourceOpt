@@ -16,7 +16,6 @@ const labAdminProfileSchema = new mongoose.Schema(
 
     qualification: {
       type: String,
-      required: true
     },
 
     managedEquipment: [
