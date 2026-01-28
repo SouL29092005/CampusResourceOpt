@@ -1,17 +1,50 @@
-import { createTimetable } from "./timetable.service.js";
+import fs from "fs";
+import csv from "csv-parser";
+import TimetableEntry from "./timetableEntry.model.js";
+import { ApiResponse } from "../../utils/apiResponse.js";
+import { ApiError } from "../../utils/apiError.js";
 
-export async function generateTimetableController(req, res, next) {
+export const uploadTimetableCSV = async (req, res, next) => {
   try {
-    const classroomCount = req.body;
-    const rooms = Array.from({ length: classroomCount }, (_, i) => `C${i + 1}`);
+    if (!req.file) {
+      return next(new ApiError(400, "CSV file is required"));
+    }
 
-    const timetable = await createTimetable({rooms });
+    const entries = [];
 
-    res.status(201).json({
-      success: true,
-      timetable,
-    });
-  } catch (err) {
-    next(err);
+    fs.createReadStream(req.file.path)
+      .pipe(csv())
+      .on("data", (row) => {
+        entries.push({
+          roomId: row.roomId,
+          roomType: row.roomType,
+          dayOfWeek: row.dayOfWeek,
+          startTime: row.startTime,
+          endTime: row.endTime,
+          courseCode: row.courseCode,
+          courseName: row.courseName,
+          facultyName: row.facultyName,
+          department: row.department,
+          semester: Number(row.semester)
+        });
+      })
+      .on("end", async () => {
+        await TimetableEntry.deleteMany({});
+        await TimetableEntry.insertMany(entries);
+
+        fs.unlinkSync(req.file.path);
+
+        return res.status(200).json(
+          new ApiResponse(
+            200,
+            {
+              insertedCount: entries.length
+            },
+            "Timetable uploaded successfully"
+          )
+        );
+      });
+  } catch (error) {
+    next(error);
   }
-}
+};

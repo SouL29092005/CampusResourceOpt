@@ -1,5 +1,5 @@
 import express from "express";
-import { addBooks, issueBook, returnBook, updateBookStatus } from "./library.controller.js";
+import { addBooks, issueBook, returnBook, updateBookStatus, getActiveIssues, searchBookByName } from "./library.controller.js";
 import { protect } from "../../middlewares/auth.middleware.js";
 import { allowRoles } from "../../middlewares/role.middleware.js";
 
@@ -32,6 +32,22 @@ router.post(
   allowRoles("librarian", "admin"),
   updateBookStatus
 );
+
+router.get(
+  "/issues/active",
+  protect,
+  allowRoles("librarian", "admin"),
+  getActiveIssues
+);
+
+router.get(
+  "/search",
+  protect,
+  allowRoles("librarian", "admin"),
+  searchBookByName
+);
+
+
 
 
 

@@ -28,10 +28,10 @@ const classSchema = new mongoose.Schema(
       trim: true,
     },
 
-    subjects: [
+    courses: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Subject",
+        ref: "Course",
         required: true,
       },
     ],

@@ -23,9 +23,12 @@ export const login = async (req, res) => {
   }
 
   res.status(200).json({
-    email: user.email,
     success: true,
-    token: generateToken(user._id)
+    token: generateToken(user._id),
+    user: {
+      email: user.email,
+      role: user.role
+    }
   });
 };
 

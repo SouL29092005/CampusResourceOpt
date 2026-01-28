@@ -3,7 +3,8 @@ import { protect } from "../../middlewares/auth.middleware.js";
 import { allowRoles } from "../../middlewares/role.middleware.js";
 import {
   createUserByAdmin,
-  deleteUserByAdmin
+  deleteUserByAdmin,
+  getUsersByRole
 } from "./user.controller.js";
 
 const router = express.Router();
@@ -16,8 +17,15 @@ router.post(
   createUserByAdmin
 );
 
+router.get(
+  "/admin/getUsers",
+  protect,
+  allowRoles("admin"),
+  getUsersByRole
+)
+
 router.delete(
-  "/admin/:id",
+  "/admin/delete/:id",
   protect,
   allowRoles("admin"),
   deleteUserByAdmin

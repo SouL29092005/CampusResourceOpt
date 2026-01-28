@@ -1,12 +1,65 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate(); 
 
   const scrollToContact = () => {
     const section = document.getElementById("login-contact");
     if (section) {
       section.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await api.post("/auth/login", {
+        email,
+        password,
+      });
+
+      const { token, user } = res.data;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", user.role);
+
+      switch (user.role) {
+        case "admin":
+          navigate("/admin/dashboard");
+          break;
+
+        case "lab_admin":
+          navigate("/lab-admin/dashboard");
+          break;
+
+        case "librarian":
+          navigate("/librarian/dashboard");
+          break;
+
+        case "faculty":
+          navigate("/faculty/dashboard");
+          break;
+
+        case "student":
+          navigate("/student/dashboard");
+          break;
+
+        default:
+          navigate("/");
+      }
+    } catch (err) {
+      console.error("Login failed:", err);
+
+      const message =
+        err.response?.data?.message || "Invalid email or password";
+
+      alert(message);
     }
   };
 
@@ -18,15 +71,18 @@ function Login() {
             Login to Your Account
           </h2>
 
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
               <label className="block text-sm font-medium mb-1">
                 Email
               </label>
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@college.edu"
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
               />
             </div>
 
@@ -38,8 +94,11 @@ function Login() {
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="w-full px-4 py-2 border rounded-lg pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
                 />
 
                 <button

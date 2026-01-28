@@ -1,24 +1,21 @@
-import { Router } from "express";
-import { createClass } from "./class.controller.js";
+import express from "express";
+import multer from "multer";
 import { protect } from "../../middlewares/auth.middleware.js";
 import { allowRoles } from "../../middlewares/role.middleware.js";
-import { generateTimetableController } from "./timetable.controller.js";
+import { uploadTimetableCSV } from "./timetable.controller.js";
 
-const router = Router();
+const router = express.Router();
 
-// ADMIN ONLY: Create a new class
-router.post(
-  "/createClass",
-  protect,
-  allowRoles("ADMIN"),
-  createClass
-);
+const upload = multer({
+  dest: "uploads/"
+});
 
 router.post(
-  "/generate",
+  "/upload",
   protect,
   allowRoles("admin"),
-  generateTimetableController
+  upload.single("file"),
+  uploadTimetableCSV
 );
 
 export default router;

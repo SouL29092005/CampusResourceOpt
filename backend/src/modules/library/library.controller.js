@@ -53,3 +53,33 @@ export const updateBookStatus = async (req, res, next) => {
     next(err);
   }
 };
+
+
+export const getActiveIssues = async (req, res, next) => {
+  try {
+    const issues = await libraryService.getActiveIssues();
+
+    res.status(200).json({
+      count: issues.length,
+      data: issues,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+export const searchBookByName = async (req, res, next) => {
+  try {
+    const { title } = req.query;
+
+    const books = await libraryService.searchBookByName(title);
+
+    res.status(200).json({
+      count: books.length,
+      data: books,
+    });
+  } catch (err) {
+    next(err);
+  }
+};

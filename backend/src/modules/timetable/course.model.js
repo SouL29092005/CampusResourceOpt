@@ -1,15 +1,15 @@
 import mongoose from "mongoose";
 
-const subjectSchema = new mongoose.Schema(
+const courseSchema = new mongoose.Schema(
   {
-    subjectCode: {
+    courseCode: {
       type: String,
       required: true,
       uppercase: true,
       trim: true,
     },
 
-    subjectName: {
+    courseName: {
       type: String,
       required: true,
       trim: true,
@@ -33,4 +33,4 @@ const subjectSchema = new mongoose.Schema(
   }
 );
 
-export const SubjectModel = mongoose.model("Subject", subjectSchema);
+export const CourseModel = mongoose.model("Course", courseSchema);

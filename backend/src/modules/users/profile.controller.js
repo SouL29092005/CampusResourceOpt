@@ -3,7 +3,7 @@ import StudentProfile from "../users/profiles/student.profile.model.js";
 import FacultyProfile from "../users/profiles/faculty.profile.model.js";
 import LibrarianProfile from "../users/profiles/librarian.profile.model.js";
 import LabAdminProfile from "../users/profiles/labAdmin.profile.model.js";
-import { SubjectModel } from "../timetable/subject.model.js";
+import { CourseModel } from "../timetable/course.model.js";
 
 
 export const getMyProfile = async (req, res) => {
@@ -54,20 +54,19 @@ export const updateMyProfile = async (req, res) => {
       break;
 
     case "faculty":
-      if (updates.subjects && Array.isArray(updates.subjects)) {
-        const subjectDocs = await SubjectModel.find({
-          subjectCode: { $in: updates.subjects },
+      if (updates.courses && Array.isArray(updates.courses)) {
+        const courseDocs = await CourseModel.find({
+          courseCode: { $in: updates.courses },
         });
 
-        if (subjectDocs.length !== updates.subjects.length) {
+        if (courseDocs.length !== updates.courses.length) {
           return res.status(400).json({
             success: false,
-            message: "One or more subject codes are invalid",
+            message: "One or more course codes are invalid",
           });
         }
 
-        // Replace subject codes with ObjectIds
-        updates.subjects = subjectDocs.map((s) => s._id);
+        updates.courses = courseDocs.map((s) => s._id);
       }
 
       profile = await FacultyProfile.findOneAndUpdate(

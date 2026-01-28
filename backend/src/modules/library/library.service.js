@@ -191,3 +191,34 @@ export const updateBookStatus = async ({ accessionNumber, status }) => {
     status,
   };
 };
+
+
+export const getActiveIssues = async () => {
+  const issues = await Issue.find({ status: "ISSUED" })
+    .populate({
+      path: "book",
+      select: "title author accessionNumber category",
+    })
+    .populate({
+      path: "user",
+      select: "name email",
+    })
+    .sort({ issuedAt: -1 });
+
+  return issues;
+};
+
+
+export const searchBookByName = async (title) => {
+  if (!title) {
+    throw new Error("Book title is required");
+  }
+
+  const books = await Book.find({
+    title: { $regex: title, $options: "i" }, // case-insensitive
+  })
+    .select("title author accessionNumber status category")
+    .limit(20);
+
+  return books;
+};

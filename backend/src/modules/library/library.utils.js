@@ -1,24 +1,28 @@
-import Book from "./book.model.js";
+import Counter from "../../utils/counter.model.js";
 
 export const generateAccessionNumbers = async (count, category) => {
-  const lastBook = await Book.findOne(
-    { category },
-    { accessionNumber: 1 }
-  )
-    .sort({ createdAt: -1 })
-    .lean();
-
-  let start = 1;
-
-  if (lastBook?.accessionNumber) {
-    const parts = lastBook.accessionNumber.split("-");
-    start = parseInt(parts[parts.length - 1]) + 1;
+  if (count <= 0) {
+    throw new Error("Invalid count");
   }
 
+  const prefix = `LIB-${category}`;
   const year = new Date().getFullYear();
 
-  return Array.from({ length: count }, (_, i) => ({
-    accessionNumber: `ACC-${year}-${category}-${String(start + i).padStart(6, "0")}`,
-    bookNumber: `LIB-${category}-${String(start + i).padStart(6, "0")}`,
-  }));
+  const counter = await Counter.findOneAndUpdate(
+    { name: prefix },
+    { $inc: { seq: count } },
+    { new: true, upsert: true }
+  );
+
+  const start = counter.seq - count + 1;
+  const end = counter.seq;
+
+  return Array.from({ length: count }, (_, i) => {
+    const num = String(start + i).padStart(6, "0");
+
+    return {
+      accessionNumber: `ACC-${year}-${category}-${num}`,
+      bookNumber: `${prefix}-${num}`,
+    };
+  });
 };

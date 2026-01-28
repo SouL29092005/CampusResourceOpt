@@ -1,27 +1,26 @@
-import { SubjectModel } from "./subject.model.js";
+import { CourseModel } from "./course.model.js";
 
-// Create a new subject
-export const createSubject = async (req, res) => {
+export const createCourse = async (req, res) => {
   try {
-    const { subjectCode, subjectName, weeklyHours, type } = req.body;
+    const { courseCode, courseName, weeklyHours, type } = req.body;
 
-    if (!subjectCode || !subjectName || !weeklyHours) {
+    if (!courseCode || !courseName || !weeklyHours) {
       return res.status(400).json({
         success: false,
         message: "Missing required fields",
       });
     }
 
-    const subject = await SubjectModel.create({
-      subjectCode,
-      subjectName,
+    const course = await CourseModel.create({
+      courseCode,
+      courseName,
       weeklyHours,
       type,
     });
 
     return res.status(201).json({
       success: true,
-      data: subject,
+      data: course,
     });
   } catch (error) {
     return res.status(500).json({
@@ -31,15 +30,15 @@ export const createSubject = async (req, res) => {
   }
 };
 
-// Get all subjects
-export const getAllSubjects = async (req, res) => {
+// Get all courses
+export const getAllCourses = async (req, res) => {
   try {
-    const subjects = await SubjectModel.find().sort({ subjectCode: 1 });
+    const courses = await CourseModel.find().sort({ courseCode: 1 });
 
     return res.status(200).json({
       success: true,
-      count: subjects.length,
-      data: subjects,
+      count: courses.length,
+      data: courses,
     });
   } catch (error) {
     return res.status(500).json({
@@ -49,21 +48,21 @@ export const getAllSubjects = async (req, res) => {
   }
 };
 
-// Get single subject by ID
-export const getSubjectById = async (req, res) => {
+// Get single course by ID
+export const getCourseById = async (req, res) => {
   try {
-    const subject = await SubjectModel.findById(req.params.id);
+    const course = await CourseModel.findById(req.params.id);
 
-    if (!subject) {
+    if (!course) {
       return res.status(404).json({
         success: false,
-        message: "Subject not found",
+        message: "Course not found",
       });
     }
 
     return res.status(200).json({
       success: true,
-      data: subject,
+      data: course,
     });
   } catch (error) {
     return res.status(500).json({
@@ -73,25 +72,25 @@ export const getSubjectById = async (req, res) => {
   }
 };
 
-// Update subject
-export const updateSubject = async (req, res) => {
+// Update course
+export const updateCourse = async (req, res) => {
   try {
-    const subject = await SubjectModel.findByIdAndUpdate(
+    const course = await CourseModel.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
     );
 
-    if (!subject) {
+    if (!course) {
       return res.status(404).json({
         success: false,
-        message: "Subject not found",
+        message: "Course not found",
       });
     }
 
     return res.status(200).json({
       success: true,
-      data: subject,
+      data: course,
     });
   } catch (error) {
     return res.status(500).json({
@@ -101,21 +100,21 @@ export const updateSubject = async (req, res) => {
   }
 };
 
-// Delete subject
-export const deleteSubject = async (req, res) => {
+// Delete course
+export const deleteCourse = async (req, res) => {
   try {
-    const subject = await SubjectModel.findByIdAndDelete(req.params.id);
+    const course = await CourseModel.findByIdAndDelete(req.params.id);
 
-    if (!subject) {
+    if (!course) {
       return res.status(404).json({
         success: false,
-        message: "Subject not found",
+        message: "Course not found",
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: "Subject deleted successfully",
+      message: "Course deleted successfully",
     });
   } catch (error) {
     return res.status(500).json({

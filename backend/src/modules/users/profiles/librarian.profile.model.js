@@ -11,12 +11,12 @@ const librarianProfileSchema = new mongoose.Schema(
 
     qualification: {
       type: String,
-      required: true
+      required: false
     },
 
     librarySection: {
       type: String,
-      required: true
+      required: false
     }
   },
   { timestamps: true }

@@ -26,7 +26,7 @@ const facultyProfileSchema = new mongoose.Schema(
 
     qualification: {
       type: String,
-      required: true
+      required: false
     },
 
     experienceYears: {
