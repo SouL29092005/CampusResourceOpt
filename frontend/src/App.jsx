@@ -15,6 +15,7 @@ import Timetable from "./pages/admin/Timetable";
 import LibrarianDashboard from "./pages/librarian/LibrarianDashboard";
 
 import StudentDashboard from "./pages/student/StudentDashboard";
+import FacultyDashboard from "./pages/faculty/FacultyDashboard";
 
 export default function App() {
   return (
@@ -43,6 +44,11 @@ export default function App() {
       <Route element={<ProtectedRoute allowedRoles={["librarian"]} />}>
         <Route path="/librarian/library" element={<LibrarianDashboard />} />
         <Route path="/librarian/dashboard" element={<LibrarianDashboard />} />
+      </Route>
+
+      {/* Faculty Protected Routes */}
+      <Route element={<ProtectedRoute allowedRoles={["faculty"]} />}>
+        <Route path="/faculty/dashboard" element={<FacultyDashboard />} />
       </Route>
     </Routes>
   );

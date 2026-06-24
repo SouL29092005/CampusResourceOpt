@@ -51,19 +51,27 @@ function Timetable() {
 
   return (
     <AdminLayout>
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-bold">Timetable</h1>
+      <div className="flex flex-col gap-3 mb-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold">Timetable</h1>
 
-        <label className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          {uploading ? "Uploading..." : "Upload New Timetable"}
-          <input
-            type="file"
-            accept=".csv"
-            onChange={uploadCSV}
-            className="hidden"
-            disabled={uploading}
-          />
-        </label>
+          <label className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            {uploading ? "Uploading..." : "Upload New Timetable"}
+            <input
+              type="file"
+              accept=".csv"
+              onChange={uploadCSV}
+              className="hidden"
+              disabled={uploading}
+            />
+          </label>
+        </div>
+
+        <p className="text-sm text-gray-600">
+          Upload a CSV file with header columns:
+          <span className="font-medium"> roomId, roomType, dayOfWeek, startTime, endTime, courseCode, courseName, facultyName, department, semester</span>.
+          Use time values like <span className="font-medium">09:00</span> and include a header row.
+        </p>
       </div>
 
       {loading && <p>Loading timetable...</p>}

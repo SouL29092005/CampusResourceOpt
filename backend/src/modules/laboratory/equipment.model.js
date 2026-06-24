@@ -30,7 +30,7 @@ const equipmentSchema = new mongoose.Schema(
 
     maintainedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "LabAdminProfile",
+      ref: "User",
       required: true
     },
 

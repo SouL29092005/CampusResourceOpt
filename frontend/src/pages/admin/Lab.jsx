@@ -26,12 +26,13 @@ function Lab() {
   const handleAddEquipment = async () => {
     try {
       setSubmitLoading(true);
-      const res = await addEquipment(formData);
-      setEquipments((prev) => [
-        res.data.equipment,
-        ...prev
-      ]);
+
+      await addEquipment(formData);
+
+      await fetchEquipments();
+
       setShowAddModal(false);
+
       setFormData({
         name: "",
         description: "",
@@ -356,10 +357,10 @@ function Lab() {
                       <td className="p-2 border">{eq.labName}</td>
 
                       <td className="p-2 border">
-                        {eq.maintainedBy?.userId?.name || "—"}
+                        {eq.maintainedBy?.name || "—"}
                         <br />
                         <span className="text-xs text-gray-500">
-                          {eq.maintainedBy?.userId?.email || ""}
+                          {eq.maintainedBy?.email || ""}
                         </span>
                       </td>
 

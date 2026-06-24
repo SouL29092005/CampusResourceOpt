@@ -205,13 +205,7 @@ export const getBookingsByUser = async (userId) => {
 
 export const getAllEquipmentsService = async () => {
   return await Equipment.find()
-    .populate({
-      path: "maintainedBy",
-      populate: {
-        path: "userId",
-        select: "name email"
-      }
-    })
+    .populate("maintainedBy", "name email role")
     .sort({ createdAt: -1 });
 };
 
@@ -223,7 +217,7 @@ export const deleteEquipmentById = async (equipmentId) => {
   }
 
   await LabAdminProfile.updateOne(
-    { _id: equipment.maintainedBy },
+    { userId: equipment.maintainedBy },
     { $pull: { managedEquipment: equipment._id } }
   );
 

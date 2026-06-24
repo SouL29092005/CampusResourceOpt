@@ -17,7 +17,7 @@ export const getMyProfile = async (req, res) => {
       break;
 
     case "faculty":
-      profile = await FacultyProfile.findOne({ userId: user._id });
+      profile = await FacultyProfile.findOne({ userId: user._id }).populate("courses", "courseName courseCode");
       break;
 
     case "librarian":
@@ -55,25 +55,33 @@ export const updateMyProfile = async (req, res) => {
 
     case "faculty":
       if (updates.courses && Array.isArray(updates.courses)) {
-        const courseDocs = await CourseModel.find({
-          courseCode: { $in: updates.courses },
-        });
+        // Accept either course IDs or course codes. If array contains valid ObjectId strings, use them directly.
+        const isObjectIdString = (s) => typeof s === "string" && /^[0-9a-fA-F]{24}$/.test(s);
 
-        if (courseDocs.length !== updates.courses.length) {
-          return res.status(400).json({
-            success: false,
-            message: "One or more course codes are invalid",
+        if (updates.courses.length > 0 && updates.courses.every(isObjectIdString)) {
+          // already IDs
+        } else {
+          // treat as course codes and resolve to IDs
+          const courseDocs = await CourseModel.find({
+            courseCode: { $in: updates.courses },
           });
-        }
 
-        updates.courses = courseDocs.map((s) => s._id);
+          if (courseDocs.length !== updates.courses.length) {
+            return res.status(400).json({
+              success: false,
+              message: "One or more course codes are invalid",
+            });
+          }
+
+          updates.courses = courseDocs.map((s) => s._id);
+        }
       }
 
       profile = await FacultyProfile.findOneAndUpdate(
         { userId },
         updates,
         { new: true, runValidators: true, upsert: true }
-      );
+      ).populate("courses", "courseName courseCode");
       break;
 
     case "librarian":

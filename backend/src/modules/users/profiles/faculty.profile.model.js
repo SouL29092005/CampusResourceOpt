@@ -9,10 +9,10 @@ const facultyProfileSchema = new mongoose.Schema(
       unique: true
     },
 
-    subjects: [
+    courses: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Subject"
+        ref: "Course"
       }
     ],
 

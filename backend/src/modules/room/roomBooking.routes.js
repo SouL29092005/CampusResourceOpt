@@ -22,7 +22,7 @@ router.patch(
 router.get(
   "/room-bookings",
   protect,
-  allowRoles("admin"),
+  allowRoles("admin", "faculty"),
   getAllRoomBookings
 );
 

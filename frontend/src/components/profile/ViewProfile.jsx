@@ -123,12 +123,37 @@ export default function ViewProfile() {
                     key === "createdAt" ||
                     key === "updatedAt" ||
                     key === "borrowedBooks" ||
-                    key === "activeEquipment"
+                    key === "activeEquipment" ||
+                    key === "availableSlots" ||
+                    key === "preferredSlots"
                   ) {
                     return null;
                   }
 
                   if (Array.isArray(value)) {
+                    if (key === "courses") {
+                      return (
+                        <div key={key}>
+                          <label className="block text-sm font-semibold text-gray-600">Subjects</label>
+                          <div className="mt-2">
+                            {value.length === 0 && <p className="text-lg text-gray-800">No subjects assigned</p>}
+                            {value.length > 0 && (
+                              <ul className="list-disc list-inside">
+                                {value.map((c) => (
+                                  <li key={c._id || c} className="text-lg text-gray-800">
+                                    {typeof c === "string" ? c : `${c.courseName} (${c.courseCode})`}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    // hide empty array sections (avoid duplicate 'None' entries)
+                    if (value.length === 0) return null;
+
                     return (
                       <div key={key}>
                         <label className="block text-sm font-semibold text-gray-600">
@@ -136,7 +161,7 @@ export default function ViewProfile() {
                             key.slice(1).replace(/([A-Z])/g, " $1")}
                         </label>
                         <p className="text-lg text-gray-800 mt-2">
-                          {value.length > 0 ? `${value.length} courses enrolled` : "No courses enrolled"}
+                          {`${value.length} items`}
                         </p>
                       </div>
                     );
