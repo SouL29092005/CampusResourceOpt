@@ -1,10 +1,10 @@
 // Export all UI components from a single point
-export { default as Button } from './button';
-export { default as Input } from './input';
-export { default as Textarea } from './textarea';
-export { default as Label } from './label';
-export { default as Badge } from './badge';
-export { default as Checkbox } from './checkbox';
+export { Button } from "./button";
+export { Input } from "./input";
+export { Textarea } from "./textarea";
+export { Label } from "./label";
+export { Badge } from "./badge";
+export { Checkbox } from "./checkbox";
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './card';
 export {
   Dialog,

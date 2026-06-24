@@ -2,46 +2,68 @@ import AdminLayout from "../../components/admin/AdminLayout";
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
 
-const ROLES = [
-  "student",
-  "faculty",
-  "librarian",
-  "lab_admin",
-  "admin"
-];
+import {
+  CheckCircle2,
+  Filter,
+  Search,
+  Plus,
+  Trash2,
+  Users as UsersIcon,
+  UserPlus,
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
+
+const ROLES = ["student", "faculty", "librarian", "lab_admin", "admin"];
 
 function Users() {
   const [users, setUsers] = useState([]);
   const [role, setRole] = useState("student");
   const [search, setSearch] = useState("");
+
   const [selectedUserId, setSelectedUserId] = useState(null);
+
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
-
-
-  useEffect(() => {
-  const fetchUsers = async () => {
-    const res = await api.get(`users/admin/getUsers?role=${role}`);
-    setUsers(res.data.users);
-    setSelectedUserId(null);
-  };
-
-  fetchUsers();
-}, [role]);
-
-  const confirmDeleteUser = async () => {
-    if (!selectedUserId) return;
-
-    await api.delete(`users/admin/delete/${selectedUserId}`);
-    setUsers(users.filter((u) => u._id !== selectedUserId));
-    setSelectedUserId(null);
-    setShowConfirmModal(false);
-  };
-
-  const filteredUsers = users.filter((u) =>
-    u.name.toLowerCase().includes(search.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.toLowerCase())
-  );
 
   const [formData, setFormData] = useState({
     name: "",
@@ -49,252 +71,689 @@ function Users() {
     password: "",
     role: "student",
     semester: "",
-    labName: ""
+    labName: "",
   });
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const res = await api.get(`users/admin/getUsers?role=${role}`);
+
+      setUsers(res.data.users);
+      setSelectedUserId(null);
+    };
+
+    fetchUsers();
+  }, [role]);
+
+  const confirmDeleteUser = async () => {
+    if (!selectedUserId) return;
+
+    await api.delete(`users/admin/delete/${selectedUserId}`);
+
+    setUsers(users.filter((u) => u._id !== selectedUserId));
+
+    setSelectedUserId(null);
+    setShowConfirmModal(false);
+  };
 
   const handleCreateUser = async () => {
     const payload = {
       name: formData.name,
       email: formData.email,
       password: formData.password,
-      role: formData.role
+      role: formData.role,
     };
 
     if (formData.role === "student") {
-      payload.extra = { semester: formData.semester };
+      payload.extra = {
+        semester: formData.semester,
+      };
     }
 
     if (formData.role === "lab_admin") {
-      payload.extra = { labName: formData.labName };
+      payload.extra = {
+        labName: formData.labName,
+      };
     }
 
     try {
       await api.post("users/admin/create", payload);
 
-      // close modal & reset form
       setShowAddUserModal(false);
+
       setFormData({
         name: "",
         email: "",
         password: "",
         role: "student",
         semester: "",
-        labName: ""
+        labName: "",
       });
 
-      // refresh list
       const res = await api.get(`users/admin/getUsers?role=${role}`);
-      setUsers(res.data.users);
 
+      setUsers(res.data.users);
     } catch (err) {
-      console.error("User creation failed:", err);
+      console.error(err);
     }
   };
 
+  const filteredUsers = users.filter(
+    (u) =>
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  // const getRoleBadge = (role) => {
+  //   switch (role) {
+  //     case "admin":
+  //       return "destructive";
+  //     case "faculty":
+  //       return "secondary";
+  //     default:
+  //       return "outline";
+  //   }
+  // };
+
+  const roleStyles = {
+    student: "bg-emerald-100 text-emerald-700",
+
+    faculty: "bg-blue-100 text-blue-700",
+
+    librarian: "bg-orange-100 text-orange-700",
+
+    lab_admin: "bg-purple-100 text-purple-700",
+
+    admin: "bg-red-100 text-red-700",
+  };
 
   return (
     <AdminLayout>
-      {/* Header */}
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">Users</h1>
+      <div className="space-y-6">
+        {/* Hero Card */}
+        <Card className="overflow-hidden rounded-3xl border-0 bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-700 shadow-xl">
+          <CardContent className="p-8 md:p-10">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+              {/* Left */}
+              <div className="space-y-5">
+                <Badge className="w-fit bg-white/20 text-white hover:bg-white/20 border-0 px-3 py-1">
+                  Campus Resource Management System
+                </Badge>
 
-        <div className="flex gap-3">
-          <input
-            type="text"
-            placeholder="Search by name or email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border px-3 py-1 rounded w-64"
-          />
+                <div>
+                  <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white">
+                    User Management
+                  </h1>
 
-          <button
-            onClick={() => setShowAddUserModal(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-          >
-            + Add User
-          </button>
-        </div>
-      </div>
+                  <p className="mt-3 max-w-2xl text-blue-100 text-lg leading-relaxed">
+                    Create, manage and organize students, faculty, librarians
+                    and administrators across the campus with a centralized
+                    dashboard.
+                  </p>
+                </div>
 
-      {/* Role Dropdown */}
-      <div className="mb-4">
-        <select
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          className="border px-3 py-2 rounded"
-        >
-          {ROLES.map((r) => (
-            <option key={r} value={r}>
-              {r.toUpperCase()}
-            </option>
-          ))}
-        </select>
-      </div>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary" className="rounded-full">
+                    Students
+                  </Badge>
 
-      {/* Users Table */}
-      <table className="w-full bg-white rounded shadow">
-        <thead>
-          <tr className="border-b bg-gray-100">
-            <th className="p-2">Name</th>
-            <th className="p-2">Email</th>
-            <th className="p-2">Role</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredUsers.map((u) => (
-            <tr
-              key={u._id}
-              onClick={() => setSelectedUserId(u._id)}
-              className={`border-b text-center cursor-pointer ${
-                selectedUserId === u._id ? "bg-blue-100" : ""
-              }`}
+                  <Badge variant="secondary" className="rounded-full">
+                    Faculty
+                  </Badge>
+
+                  <Badge variant="secondary" className="rounded-full">
+                    Librarians
+                  </Badge>
+
+                  <Badge variant="secondary" className="rounded-full">
+                    Admins
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Right */}
+
+              <div className="flex flex-col items-start lg:items-end gap-5">
+                <Button
+                  size="lg"
+                  onClick={() => setShowAddUserModal(true)}
+                  className="
+            bg-white
+            text-blue-700
+            hover:bg-blue-50
+            rounded-xl
+            px-7
+            shadow-lg
+          "
+                >
+                  <Plus className="mr-2 h-5 w-5" />
+                  Add User
+                </Button>
+
+                <div className="grid grid-cols-2 gap-3 w-full lg:w-auto">
+                  <Card className="bg-white/15 border-white/20 shadow-none">
+                    <CardContent className="p-4">
+                      <p className="text-xs text-blue-100 uppercase tracking-wide">
+                        Total Users
+                      </p>
+
+                      <h2 className="text-3xl font-bold text-white">
+                        {filteredUsers.length}
+                      </h2>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-white/15 border-white/20 shadow-none">
+                    <CardContent className="p-4">
+                      <p className="text-xs text-blue-100 uppercase tracking-wide">
+                        Selected Role
+                      </p>
+
+                      <h2 className="text-xl font-semibold text-white capitalize">
+                        {role}
+                      </h2>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Stats */}
+        <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 rounded-2xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">
+                  Total Users
+                </p>
+
+                <h2 className="text-4xl font-bold mt-2">
+                  {filteredUsers.length}
+                </h2>
+
+                <p className="text-sm text-emerald-600 mt-2">
+                  Active in the selected role
+                </p>
+              </div>
+
+              <div className="h-16 w-16 rounded-2xl bg-blue-100 flex items-center justify-center">
+                <UsersIcon className="h-8 w-8 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Search + Filter */}
+        <Card className="rounded-2xl border shadow-sm">
+          <CardContent className="p-5">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              {/* Left */}
+              <div className="flex flex-col sm:flex-row flex-1 gap-4">
+                {/* Search */}
+                <div className="relative flex-1">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+
+                  <Input
+                    placeholder="Search users by name or email..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="
+                    h-11
+                    rounded-xl
+                    pl-11
+                    border-slate-200
+                    shadow-none
+                    focus-visible:ring-2
+                    focus-visible:ring-blue-500
+                  "
+                  />
+                </div>
+
+                {/* Role */}
+
+                <div className="flex items-center gap-3">
+                  <div className="h-11 w-11 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <Filter className="h-5 w-5 text-blue-600" />
+                  </div>
+
+                  <Select value={role} onValueChange={setRole}>
+                    <SelectTrigger
+                      className="
+    h-11
+    w-full
+    sm:w-[220px]
+    rounded-xl
+    border
+    border-slate-200
+    !bg-white
+    hover:!bg-white
+    shadow-sm
+  "
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+
+                    <SelectContent
+                      className="
+    bg-white
+    border
+    border-slate-200
+    rounded-xl
+    shadow-xl
+  "
+                    >
+                      {ROLES.map((r) => (
+                        <SelectItem
+                          className="
+    cursor-pointer
+    rounded-md
+    focus:bg-slate-100
+  "
+                          key={r}
+                          value={r}
+                        >
+                          {r
+                            .replace("_", " ")
+                            .replace(/\b\w/g, (c) => c.toUpperCase())}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Right */}
+
+              <Badge
+                variant="secondary"
+                className="
+                h-11
+                px-5
+                rounded-xl
+                text-sm
+                font-semibold
+                self-start
+                lg:self-auto
+              "
+              >
+                <UsersIcon className="mr-2 h-4 w-4" />
+                {filteredUsers.length} Users
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Table */}
+        <Card className="rounded-2xl shadow-sm border">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-xl">Users</CardTitle>
+
+              <CardDescription>Manage all registered users</CardDescription>
+            </div>
+
+            <Badge variant="secondary">{filteredUsers.length} Users</Badge>
+          </CardHeader>
+
+          <Separator />
+
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader className="bg-slate-50">
+                <TableRow>
+                  <TableHead className="pl-6">User</TableHead>
+
+                  <TableHead>Email</TableHead>
+
+                  <TableHead>Role</TableHead>
+
+                  <TableHead className="text-right pr-6">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+
+              <TableBody>
+                {filteredUsers.length > 0 ? (
+                  filteredUsers.map((u) => (
+                    <TableRow
+                      key={u._id}
+                      onClick={() => setSelectedUserId(u._id)}
+                      className={`cursor-pointer transition-all ${
+                        selectedUserId === u._id
+                          ? "bg-blue-50"
+                          : "hover:bg-muted/40"
+                      }`}
+                    >
+                      <TableCell className="pl-6">
+                        <div className="flex items-center gap-4">
+                          <Avatar className="h-11 w-11">
+                            <AvatarFallback className="bg-blue-600 text-white font-semibold">
+                              {u.name
+                                .split(" ")
+                                .map((word) => word[0])
+                                .join("")
+                                .slice(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          <div>
+                            <p className="font-semibold">{u.name}</p>
+
+                            <p className="text-xs text-muted-foreground">
+                              Campus User
+                            </p>
+                          </div>
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{u.email}</p>
+
+                          <p className="text-xs text-emerald-600 flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Verified
+                          </p>
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
+                        <Badge className={roleStyles[u.role]}>{u.role}</Badge>
+                      </TableCell>
+
+                      <TableCell className="text-right pr-6">
+                        <Badge
+                          className="
+                          bg-green-100
+                          text-green-700
+                          hover:bg-green-100
+                          rounded-full
+                        "
+                        >
+                          Active
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={3}
+                      className="text-center py-10 text-muted-foreground"
+                    >
+                      No users found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        {selectedUserId && (
+          <div className="mb-5 flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 px-5 py-3">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-blue-600" />
+
+              <span className="font-medium text-blue-800">1 user selected</span>
+            </div>
+
+            <Button
+              onClick={() => setShowConfirmModal(true)}
+              className="
+    bg-red-600
+    hover:bg-red-700
+    text-white
+    border-0
+    shadow-sm
+  "
             >
-              <td className="p-2">{u.name}</td>
-              <td className="p-2">{u.email}</td>
-              <td className="p-2">{u.role}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete User
+            </Button>
+          </div>
+        )}
 
-      {/* Delete Button */}
-      {selectedUserId && (
-        <div className="mt-4">
-          <button
-            onClick={() => setShowConfirmModal(true)}
-            className="bg-red-600 text-white px-4 py-2 rounded"
+        {/* Delete Dialog */}
+        <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+          <DialogContent
+            className="
+    sm:max-w-md
+    rounded-2xl
+    bg-white
+    border
+    border-slate-200
+    shadow-2xl
+  "
           >
-            Delete Selected User
-          </button>
-        </div>
-      )}
+            <DialogHeader className="items-center text-center">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                <Trash2 className="h-8 w-8 text-red-600" />
+              </div>
 
-      {/* Confirmation Modal */}
-      {showConfirmModal && (
-        <div className="fixed inset-0 flex items-center justify-center">
-          <div className="bg-white p-6 rounded shadow-lg w-96">
-            <h2 className="text-lg font-semibold mb-4">
-              Confirm Deletion
-            </h2>
-            <p className="mb-6">
-              Are you sure you want to delete this user?  
-              This action cannot be undone.
-            </p>
+              <DialogTitle className="text-2xl">Delete User</DialogTitle>
 
-            <div className="flex justify-end gap-3">
-              <button
+              <DialogDescription className="mt-2">
+                This action cannot be undone. The selected user will be
+                permanently removed from the Campus Resource Management System.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4 shadow-sm">
+              <p className="text-sm text-red-700">
+                ⚠️ All associated data for this user may also become
+                inaccessible after deletion.
+              </p>
+            </div>
+
+            <DialogFooter className="mt-6 gap-2">
+              <Button
+                variant="outline"
                 onClick={() => setShowConfirmModal(false)}
-                className="px-4 py-2 border rounded"
+                className="flex-1 rounded-xl"
               >
                 Cancel
-              </button>
+              </Button>
 
-              <button
+              <Button
                 onClick={confirmDeleteUser}
-                className="px-4 py-2 bg-red-600 text-white rounded"
+                className="
+          flex-1
+          rounded-xl
+          bg-red-600
+          hover:bg-red-700
+          text-white
+        "
               >
-                Yes, Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete User
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-      {showAddUserModal && (
-        <div className="fixed inset-0 flex items-center justify-center">
-          <div className="bg-white p-6 rounded shadow-lg w-96">
-            <h2 className="text-lg font-semibold mb-4">Add New User</h2>
+        {/* Add User Dialog */}
+        <Dialog open={showAddUserModal} onOpenChange={setShowAddUserModal}>
+          <DialogContent
+            className="
+      sm:max-w-xl
+      rounded-2xl
+      bg-white
+      border
+      border-slate-200
+      shadow-2xl
+    "
+          >
+            <DialogHeader className="space-y-4">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+                <UserPlus className="h-8 w-8 text-blue-600" />
+              </div>
 
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Name"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className="border px-3 py-2 w-full rounded"
-              />
+              <div className="text-center">
+                <DialogTitle className="text-2xl font-bold">
+                  Create New User
+                </DialogTitle>
 
-              <input
-                type="email"
-                placeholder="Email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                className="border px-3 py-2 w-full rounded"
-              />
+                <DialogDescription className="mt-2">
+                  Add a new user to the Campus Resource Management System.
+                </DialogDescription>
+              </div>
+            </DialogHeader>
 
-              <input
-                type="password"
-                placeholder="Password"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                className="border px-3 py-2 w-full rounded"
-              />
+            <div className="space-y-5 mt-6">
+              {/* Name */}
 
-              <select
-                value={formData.role}
-                onChange={(e) =>
-                  setFormData({ ...formData, role: e.target.value })
-                }
-                className="border px-3 py-2 w-full rounded"
-              >
-                {ROLES.map((r) => (
-                  <option key={r} value={r}>
-                    {r.toUpperCase()}
-                  </option>
-                ))}
-              </select>
+              <div className="space-y-2">
+                <Label>Full Name</Label>
 
-              {/* Conditional fields */}
-              {formData.role === "student" && (
-                <input
-                  type="number"
-                  placeholder="Semester"
-                  value={formData.semester}
+                <Input
+                  placeholder="John Doe"
+                  value={formData.name}
                   onChange={(e) =>
-                    setFormData({ ...formData, semester: e.target.value })
+                    setFormData({
+                      ...formData,
+                      name: e.target.value,
+                    })
                   }
-                  className="border px-3 py-2 w-full rounded"
+                  className="h-11 rounded-xl"
                 />
+              </div>
+
+              {/* Email */}
+
+              <div className="space-y-2">
+                <Label>Email Address</Label>
+
+                <Input
+                  type="email"
+                  placeholder="john@example.com"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      email: e.target.value,
+                    })
+                  }
+                  className="h-11 rounded-xl"
+                />
+              </div>
+
+              {/* Password */}
+
+              <div className="space-y-2">
+                <Label>Password</Label>
+
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      password: e.target.value,
+                    })
+                  }
+                  className="h-11 rounded-xl"
+                />
+              </div>
+
+              {/* Role */}
+
+              <div className="space-y-2">
+                <Label>User Role</Label>
+
+                <Select
+                  value={formData.role}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      role: value,
+                    })
+                  }
+                >
+                  <SelectTrigger className="h-11 rounded-xl bg-white border-slate-200">
+                    <SelectValue placeholder="Select Role" />
+                  </SelectTrigger>
+
+                  <SelectContent className="bg-white rounded-xl">
+                    {ROLES.map((r) => (
+                      <SelectItem key={r} value={r}>
+                        {r
+                          .replace("_", " ")
+                          .replace(/\b\w/g, (c) => c.toUpperCase())}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Conditional */}
+
+              {formData.role === "student" && (
+                <div className="space-y-2">
+                  <Label>Semester</Label>
+
+                  <Input
+                    type="number"
+                    placeholder="Semester"
+                    value={formData.semester}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        semester: e.target.value,
+                      })
+                    }
+                    className="h-11 rounded-xl"
+                  />
+                </div>
               )}
 
               {formData.role === "lab_admin" && (
-                <input
-                  type="text"
-                  placeholder="Lab Name"
-                  value={formData.labName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, labName: e.target.value })
-                  }
-                  className="border px-3 py-2 w-full rounded"
-                />
+                <div className="space-y-2">
+                  <Label>Lab Name</Label>
+
+                  <Input
+                    placeholder="AI Lab"
+                    value={formData.labName}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        labName: e.target.value,
+                      })
+                    }
+                    className="h-11 rounded-xl"
+                  />
+                </div>
               )}
             </div>
 
-            <div className="flex justify-end gap-3 mt-6">
-              <button
+            <DialogFooter className="mt-8 gap-3">
+              <Button
+                variant="outline"
                 onClick={() => setShowAddUserModal(false)}
-                className="px-4 py-2 border rounded"
+                className="flex-1 rounded-xl"
               >
                 Cancel
-              </button>
+              </Button>
 
-              <button
+              <Button
                 onClick={handleCreateUser}
-                className="px-4 py-2 bg-blue-600 text-white rounded"
+                className="
+          flex-1
+          rounded-xl
+          bg-blue-600
+          hover:bg-blue-700
+          text-white
+        "
               >
+                <UserPlus className="mr-2 h-4 w-4" />
                 Create User
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </AdminLayout>
   );
 }
