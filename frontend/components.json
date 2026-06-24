@@ -1,0 +1,9 @@
+{
+  "style": "new-york",
+  "rsc": false,
+  "tsx": false,
+  "aliases": {
+    "@/components": "src/components",
+    "@/lib/utils": "src/lib/utils"
+  }
+}
