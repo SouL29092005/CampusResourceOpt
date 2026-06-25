@@ -1,20 +1,56 @@
 import { useEffect, useState, useCallback } from "react";
 import api from "../../api/axios";
 import AdminLayout from "../../components/admin/AdminLayout";
+import {
+  Archive,
+  Ban,
+  Building2,
+  CalendarDays,
+  CalendarOff,
+  CalendarPlus,
+  CheckCircle2,
+  DoorOpen,
+  Edit,
+  Filter,
+  Plus,
+  RotateCcw,
+  Search,
+  XCircle,
+} from "lucide-react";
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Textarea,
+} from "@/components/ui";
 
-const ROOM_TYPES = [
-  "classroom",
-  "laboratory",
-  "seminar_hall",
-  "auditorium"
-];
+const ROOM_TYPES = ["classroom", "laboratory", "seminar_hall", "auditorium"];
 
 const AdminRooms = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
-  const [roomTypeFilter, setRoomTypeFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [roomTypeFilter, setRoomTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [showAddModal, setShowAddModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -24,38 +60,37 @@ const AdminRooms = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [cancelLoading, setCancelLoading] = useState(false);
-  const [bookingStatusFilter, setBookingStatusFilter] = useState("");
-  const [bookingUserFilter, setBookingUserFilter] = useState("");
+  const [bookingStatusFilter, setBookingStatusFilter] = useState("all");
+  const [bookingUserFilter, setBookingUserFilter] = useState("all");
   const [formData, setFormData] = useState({
     roomId: "",
     location: "",
     roomType: "",
     capacity: "",
     facilities: "",
-    department: ""
+    department: "",
   });
   const [bookingData, setBookingData] = useState({
     roomId: "",
     date: "",
     startTime: "",
-    endTime: ""
+    endTime: "",
   });
   const fetchBookings = useCallback(async () => {
     try {
       const params = {};
 
-      if (bookingStatusFilter) {
+      if (bookingStatusFilter !== "all") {
         params.status = bookingStatusFilter;
       }
 
-      if (bookingUserFilter) {
+      if (bookingUserFilter !== "all") {
         params.bookedBy = bookingUserFilter;
       }
 
-      const res = await api.get(
-        "/roomBooking/room-bookings",
-        { params }
-      );
+      const res = await api.get("/roomBooking/room-bookings", {
+        params,
+      });
 
       setBookings(res.data || []);
     } catch (err) {
@@ -63,15 +98,12 @@ const AdminRooms = () => {
     }
   }, [bookingStatusFilter, bookingUserFilter]);
 
-
   const [editMode, setEditMode] = useState(false);
   const [editingRoomId, setEditingRoomId] = useState(null);
 
   useEffect(() => {
     fetchBookings();
   }, [fetchBookings]);
-
-
 
   const openEditModal = (room) => {
     setEditMode(true);
@@ -82,7 +114,7 @@ const AdminRooms = () => {
       roomType: room.roomType,
       capacity: room.capacity,
       facilities: room.facilities?.join(", ") || "",
-      department: room.department || ""
+      department: room.department || "",
     });
     setShowAddModal(true);
   };
@@ -97,22 +129,18 @@ const AdminRooms = () => {
       setCancelLoading(true);
 
       await api.patch(
-        `/roomBooking/room-booking/${selectedBooking._id}/cancel`
+        `/roomBooking/room-booking/${selectedBooking._id}/cancel`,
       );
 
       setShowCancelModal(false);
       setSelectedBooking(null);
       fetchBookings();
     } catch (err) {
-      alert(
-        err.response?.data?.message ||
-        "Failed to cancel booking"
-      );
+      alert(err.response?.data?.message || "Failed to cancel booking");
     } finally {
       setCancelLoading(false);
     }
   };
-
 
   const handleAddRoom = async (e) => {
     e.preventDefault();
@@ -127,7 +155,7 @@ const AdminRooms = () => {
         facilities: formData.facilities
           ? formData.facilities.split(",").map((f) => f.trim())
           : [],
-        department: formData.department || undefined
+        department: formData.department || undefined,
       };
 
       if (editMode) {
@@ -135,7 +163,7 @@ const AdminRooms = () => {
       } else {
         await api.post("/room/addRoom", {
           roomId: formData.roomId,
-          ...payload
+          ...payload,
         });
       }
 
@@ -149,7 +177,7 @@ const AdminRooms = () => {
         roomType: "",
         capacity: "",
         facilities: "",
-        department: ""
+        department: "",
       });
 
       fetchRooms();
@@ -211,22 +239,19 @@ const AdminRooms = () => {
       await api.post("roomBooking/room-booking", {
         roomId,
         startTime: start,
-        endTime: end
+        endTime: end,
       });
 
       setShowBookingModal(false);
       fetchBookings();
     } catch (err) {
       const msg =
-        err.response?.data?.message ||
-        "Room already booked or timetable clash";
+        err.response?.data?.message || "Room already booked or timetable clash";
       setBookingError(msg);
     } finally {
       setBookingLoading(false);
     }
   };
-
-
 
   useEffect(() => {
     fetchRooms();
@@ -239,7 +264,6 @@ const AdminRooms = () => {
       const res = await api.get("/room/getRooms");
 
       setRooms(res.data?.data || []);
-
     } catch (err) {
       console.error("Failed to fetch rooms", err);
       setRooms([]);
@@ -261,20 +285,17 @@ const AdminRooms = () => {
     const matchesSearch =
       room.roomId.toLowerCase().includes(search.toLowerCase()) ||
       room.location.toLowerCase().includes(search.toLowerCase()) ||
-      (room.department || "")
-        .toLowerCase()
-        .includes(search.toLowerCase());
+      (room.department || "").toLowerCase().includes(search.toLowerCase());
 
-    const matchesRoomType = roomTypeFilter
-      ? room.roomType === roomTypeFilter
-      : true;
+    const matchesRoomType =
+      roomTypeFilter === "all" || room.roomType === roomTypeFilter;
 
     const matchesStatus =
-      statusFilter === ""
+      statusFilter === "all"
         ? true
         : statusFilter === "active"
-        ? room.isActive
-        : !room.isActive;
+          ? room.isActive
+          : !room.isActive;
 
     return matchesSearch && matchesRoomType && matchesStatus;
   });
@@ -282,469 +303,799 @@ const AdminRooms = () => {
   return (
     <>
       <AdminLayout>
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-semibold">Rooms</h1>
+        <div className="mx-auto max-w-7xl p-6">
+          {/* Top */}
+          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            {/* Title */}
+            <div>
+              <h1 className="flex items-center gap-2 text-3xl font-bold tracking-tight text-slate-900">
+                <DoorOpen className="h-7 w-7 text-primary" />
+                Rooms
+              </h1>
 
-            <div className="flex gap-3">
-              <button
+              <p className="mt-1 text-sm text-muted-foreground">
+                Manage campus rooms and room bookings.
+              </p>
+            </div>
+
+            {/* Actions Buttons*/}
+            <div className="flex flex-wrap gap-3">
+              <Button
+                variant="outline"
+                size="lg"
                 onClick={() => setShowBookingModal(true)}
-                className="bg-green-600 text-white px-4 py-2 rounded cursor-pointer"
+                className="cursor-pointer rounded-xl border-slate-300 px-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary/5 hover:shadow-md"
               >
-                📅 Book Room
-              </button>
+                <CalendarPlus className="mr-2 h-5 w-5" />
+                Book Room
+              </Button>
 
-              <button
+              <Button
+                size="lg"
                 onClick={() => setShowAddModal(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded cursor-pointer"
+                className="cursor-pointer rounded-xl px-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
               >
-                + Add Room
-              </button>
+                <Plus className="mr-2 h-5 w-5" />
+                Add Room
+              </Button>
             </div>
           </div>
-
 
           {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <input
-              type="text"
-              placeholder="Search room / location / department"
-              className="border px-3 py-2 rounded"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          <Card className="mb-6 rounded-2xl border-0 shadow-md">
+            <CardContent className="p-5">
+              <div className="mb-4 flex items-center gap-2">
+                <Filter className="h-5 w-5 text-muted-foreground" />
+                <h2 className="font-semibold">Filters</h2>
+              </div>
 
-            <select
-              className="border px-3 py-2 rounded"
-              value={roomTypeFilter}
-              onChange={(e) => setRoomTypeFilter(e.target.value)}
-            >
-              <option value="">All Types</option>
-              {ROOM_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {type.replace("_", " ").toUpperCase()}
-                </option>
-              ))}
-            </select>
+              <div className="flex flex-col gap-4 md:flex-row">
+                {/* Search */}
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 
-            <select
-              className="border px-3 py-2 rounded"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
+                  <Input
+                    placeholder="Search room, location or department..."
+                    className="pl-10"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
 
-          {/* Table */}
-          <div className="bg-white border rounded overflow-x-auto">
-            {loading ? (
-              <p className="p-4">Loading rooms...</p>
-            ) : (
-              <table className="w-full border-collapse">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="border p-2">Room ID</th>
-                    <th className="border p-2">Location</th>
-                    <th className="border p-2">Type</th>
-                    <th className="border p-2">Capacity</th>
-                    <th className="border p-2">Department</th>
-                    <th className="border p-2">Facilities</th>
-                    <th className="border p-2">Actions</th>
-                  </tr>
-                </thead>
+                {/* Room Type */}
+                <Select
+                  value={roomTypeFilter}
+                  onValueChange={setRoomTypeFilter}
+                >
+                  <SelectTrigger className="w-[190px]">
+                    <SelectValue placeholder="All Room Types" />
+                  </SelectTrigger>
 
-                <tbody>
-                  {filteredRooms.length === 0 ? (
-                    <tr>
-                      <td colSpan="7" className="p-4 text-center">
-                        No rooms found
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredRooms.map((room) => (
-                      <tr key={room._id}>
-                        <td className="border p-2">{room.roomId}</td>
-                        <td className="border p-2">{room.location}</td>
-                        <td className="border p-2 capitalize">
-                          {room.roomType.replace("_", " ")}
-                        </td>
-                        <td className="border p-2">{room.capacity}</td>
-                        <td className="border p-2">
-                          {room.department || "-"}
-                        </td>
-                        <td className="border p-2">
-                          {room.facilities?.length
-                            ? room.facilities.join(", ")
-                            : "-"}
-                        </td>
-                        <td className="border p-2 space-y-1">
-                          {/* Room active / inactive */}
-                          {room.isActive ? (
-                            <button
-                              onClick={() => deactivateRoom(room.roomId)}
-                              className="block text-red-600 cursor-pointer"
+                  <SelectContent className="bg-white border shadow-lg">
+                    <SelectItem value="all">All Room Types</SelectItem>
+
+                    {ROOM_TYPES.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type.replace("_", " ").toUpperCase()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Status */}
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[170px]">
+                    <SelectValue placeholder="All Status" />
+                  </SelectTrigger>
+
+                  <SelectContent className="bg-white border shadow-lg">
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Archived</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Rooms Table */}
+          <Card className="overflow-hidden rounded-xl border-0 bg-white shadow-md">
+            <CardContent className="p-0">
+              {loading ? (
+                <div className="flex h-40 items-center justify-center text-muted-foreground">
+                  Loading rooms...
+                </div>
+              ) : (
+                <>
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-6 py-5 shadow-sm">
+                    <div>
+                      <h3 className="text-xl font-semibold tracking-tight">
+                        Rooms Directory
+                      </h3>
+
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Manage and monitor all campus rooms
+                      </p>
+                    </div>
+
+                    <Badge variant="secondary" className="px-3 py-1">
+                      {filteredRooms.length} Rooms
+                    </Badge>
+                  </div>
+
+                  {/* Table Element */}
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader className="bg-slate-50">
+                        <TableRow>
+                          <TableHead>Room ID</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Capacity</TableHead>
+                          <TableHead>Department</TableHead>
+                          <TableHead>Facilities</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Booking</TableHead>
+                          <TableHead className="text-center">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+
+                      <TableBody>
+                        {filteredRooms.length === 0 ? (
+                          <TableRow>
+                            <TableCell
+                              colSpan={9}
+                              className="h-32 text-center text-muted-foreground"
                             >
-                              Deactivate Room
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => reactivateRoom(room.roomId)}
-                              className="block text-green-600 cursor-pointer"
+                              No rooms found.
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          filteredRooms.map((room) => (
+                            <TableRow
+                              key={room._id}
+                              className="border-b border-slate-100 transition-colors hover:bg-slate-50"
                             >
-                              Reactivate Room
-                            </button>
-                          )}
+                              <TableCell className="font-medium">
+                                {room.roomId}
+                              </TableCell>
 
-                          {/* Booking active / inactive */}
-                          {room.isActive && (
-                            room.isBookable ? (
-                              <button
-                                onClick={() => deactivateBooking(room.roomId)}
-                                className="block text-yellow-600 cursor-pointer"
-                              >
-                                Deactivate Booking
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => reactivateBooking(room.roomId)}
-                                className="block text-green-700 cursor-pointer"
-                              >
-                                Reactivate Booking
-                              </button>
-                            )
-                          )}
+                              <TableCell>{room.location}</TableCell>
 
-                          {/* Edit only if room active */}
-                          {room.isActive && (
-                            <button
-                              onClick={() => openEditModal(room)}
-                              className="block text-blue-600 cursor-pointer"
-                            >
-                              Edit
-                            </button>
-                          )}
-                        </td>
+                              <TableCell>
+                                <Badge variant="secondary">
+                                  {room.roomType
+                                    .replace("_", " ")
+                                    .replace(/\b\w/g, (c) => c.toUpperCase())}
+                                </Badge>
+                              </TableCell>
 
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            )}
-          </div>
+                              <TableCell>
+                                <Badge variant="outline">{room.capacity}</Badge>
+                              </TableCell>
 
+                              <TableCell>{room.department || "-"}</TableCell>
+
+                              <TableCell>
+                                {room.facilities?.length ? (
+                                  <div className="flex flex-wrap gap-1">
+                                    {room.facilities
+                                      .slice(0, 2)
+                                      .map((facility) => (
+                                        <Badge key={facility} variant="outline">
+                                          {facility}
+                                        </Badge>
+                                      ))}
+
+                                    {room.facilities.length > 2 && (
+                                      <Badge variant="secondary">
+                                        +{room.facilities.length - 2}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
+                              </TableCell>
+
+                              <TableCell>
+                                <Badge
+                                  className={
+                                    room.isActive
+                                      ? "bg-green-100 text-green-700 hover:bg-green-100"
+                                      : "bg-slate-100 text-slate-700 hover:bg-slate-100"
+                                  }
+                                >
+                                  {room.isActive ? "Active" : "Archived"}
+                                </Badge>
+                              </TableCell>
+
+                              <TableCell>
+                                {room.isActive ? (
+                                  <Badge
+                                    className={
+                                      room.isBookable
+                                        ? "bg-blue-100 text-blue-700 hover:bg-blue-100"
+                                        : "bg-yellow-100 text-yellow-700 hover:bg-yellow-100"
+                                    }
+                                  >
+                                    {room.isBookable ? "Bookable" : "Disabled"}
+                                  </Badge>
+                                ) : (
+                                  "-"
+                                )}
+                              </TableCell>
+
+                              <TableCell>
+                                <div className="flex justify-center gap-2">
+                                  {room.isActive ? (
+                                    <Button
+                                      size="icon"
+                                      variant="outline"
+                                      onClick={() =>
+                                        deactivateRoom(room.roomId)
+                                      }
+                                      title="Archive Room"
+                                    >
+                                      <Archive className="h-4 w-4" />
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      size="icon"
+                                      variant="outline"
+                                      onClick={() =>
+                                        reactivateRoom(room.roomId)
+                                      }
+                                      title="Restore Room"
+                                    >
+                                      <RotateCcw className="h-4 w-4" />
+                                    </Button>
+                                  )}
+
+                                  {room.isActive &&
+                                    (room.isBookable ? (
+                                      <Button
+                                        size="icon"
+                                        variant="secondary"
+                                        onClick={() =>
+                                          deactivateBooking(room.roomId)
+                                        }
+                                        title="Disable Booking"
+                                      >
+                                        <CalendarOff className="h-4 w-4" />
+                                      </Button>
+                                    ) : (
+                                      <Button
+                                        size="icon"
+                                        variant="outline"
+                                        onClick={() =>
+                                          reactivateBooking(room.roomId)
+                                        }
+                                        title="Enable Booking"
+                                      >
+                                        <CheckCircle2 className="h-4 w-4" />
+                                      </Button>
+                                    ))}
+
+                                  {room.isActive && (
+                                    <Button
+                                      size="icon"
+                                      variant="outline"
+                                      onClick={() => openEditModal(room)}
+                                      title="Edit Room"
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Bookings Table */}
           <div className="mt-10">
-            <div className="flex gap-4 mb-4">
-              {/* Status Filter */}
-              <select
-                className="border px-3 py-2 rounded"
-                value={bookingStatusFilter}
-                onChange={(e) => setBookingStatusFilter(e.target.value)}
-              >
-                <option value="">All Status</option>
-                <option value="active">Active</option>
-                <option value="expired">Expired</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
+            {/* Filters */}
+            <Card className="mb-6 rounded-xl border-0 shadow-sm">
+              <CardContent className="p-5">
+                <div className="mb-4 flex items-center gap-2">
+                  <Filter className="h-5 w-5 text-muted-foreground" />
+                  <h2 className="font-semibold">Booking Filters</h2>
+                </div>
 
-              {/* Booked By Filter */}
-              <select
-                className="border px-3 py-2 rounded"
-                value={bookingUserFilter}
-                onChange={(e) => setBookingUserFilter(e.target.value)}
-              >
-                <option value="">All Users</option>
-                <option value="me">My Bookings</option>
-                <option value="others">Others</option>
-              </select>
+                <div className="flex flex-col gap-4 md:flex-row">
+                  <Select
+                    value={bookingStatusFilter}
+                    onValueChange={setBookingStatusFilter}
+                  >
+                    <SelectTrigger className="w-[220px]">
+                      <SelectValue placeholder="Booking Status" />
+                    </SelectTrigger>
 
-              <button
-                onClick={fetchBookings}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                Apply
-              </button>
-            </div>
+                    <SelectContent className="bg-white">
+                      <SelectItem value="all">All Status</SelectItem>
 
-            <h2 className="text-xl font-semibold mb-4">Room Bookings</h2>
+                      <SelectItem value="active">Active</SelectItem>
 
-            <div className="bg-white border rounded overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="border p-2">Booking #</th>
-                    <th className="border p-2">Room</th>
-                    <th className="border p-2">Date</th>
-                    <th className="border p-2">Time</th>
-                    <th className="border p-2">Booked By</th>
-                    <th className="border p-2">Status</th>
-                    <th className="border p-2">Actions</th>
-                  </tr>
-                </thead>
+                      <SelectItem value="expired">Expired</SelectItem>
 
-                <tbody>
-                  {bookings.length === 0 ? (
-                    <tr>
-                      <td colSpan="6" className="p-4 text-center">
-                        No bookings found
-                      </td>
-                    </tr>
-                  ) : (
-                    bookings.map((b) => (
-                      <tr key={b._id}>
-                        <td className="border p-2">{b.bookingNumber}</td>
-                        <td className="border p-2">{b.roomId}</td>
-                        <td className="border p-2">
-                          {new Date(b.startTime).toLocaleDateString()}
-                        </td>
-                        <td className="border p-2">
-                          {new Date(b.startTime).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })}
-                          {" - "}
-                          {new Date(b.endTime).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })}
-                        </td>
-                        <td className="border p-2">
-                          {b.bookedBy?.name || "-"}
-                        </td>
-                        <td className="border p-2 capitalize">{b.status}</td>
-                        <td className="border p-2">
-                          {b.status === "active" ? (
-                            <button
-                              onClick={() => {
-                                setSelectedBooking(b);
-                                setShowCancelModal(true);
-                              }}
-                              className="text-red-600 cursor-pointer"
-                            >
-                              Cancel
-                            </button>
-                          ) : (
-                            "-"
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    value={bookingUserFilter}
+                    onValueChange={setBookingUserFilter}
+                  >
+                    <SelectTrigger className="w-[220px]">
+                      <SelectValue placeholder="Booked By" />
+                    </SelectTrigger>
+
+                    <SelectContent className="bg-white">
+                      <SelectItem value="all">All Users</SelectItem>
+
+                      <SelectItem value="me">My Bookings</SelectItem>
+
+                      <SelectItem value="others">Others</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Button onClick={fetchBookings} className="w-fit">
+                    Apply Filters
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Table */}
+            <Card className="overflow-hidden rounded-xl border-0 shadow-sm">
+              <CardContent className="p-0">
+                <div className="flex items-center justify-between px-6 py-5">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-primary/10 p-2">
+                      <CalendarDays className="h-5 w-5 text-primary" />
+                    </div>
+
+                    <div>
+                      <h3 className="text-xl font-semibold">Room Bookings</h3>
+
+                      <p className="text-sm text-muted-foreground">
+                        View and manage room reservations
+                      </p>
+                    </div>
+                  </div>
+
+                  <Badge variant="secondary">{bookings.length} Bookings</Badge>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader className="bg-slate-50">
+                      <TableRow>
+                        <TableHead>Booking #</TableHead>
+
+                        <TableHead>Room</TableHead>
+
+                        <TableHead>Date</TableHead>
+
+                        <TableHead>Time</TableHead>
+
+                        <TableHead>Booked By</TableHead>
+
+                        <TableHead>Status</TableHead>
+
+                        <TableHead className="text-center">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+
+                    <TableBody>
+                      {bookings.length === 0 ? (
+                        <TableRow>
+                          <TableCell
+                            colSpan={7}
+                            className="h-32 text-center text-muted-foreground"
+                          >
+                            No bookings found.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        bookings.map((b) => (
+                          <TableRow key={b._id} className="hover:bg-slate-50">
+                            <TableCell className="font-medium">
+                              #{b.bookingNumber}
+                            </TableCell>
+
+                            <TableCell>
+                              <Badge variant="outline">{b.roomId}</Badge>
+                            </TableCell>
+
+                            <TableCell>
+                              {new Date(b.startTime).toLocaleDateString()}
+                            </TableCell>
+
+                            <TableCell>
+                              {new Date(b.startTime).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+
+                              {" - "}
+
+                              {new Date(b.endTime).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </TableCell>
+
+                            <TableCell>{b.bookedBy?.name || "-"}</TableCell>
+
+                            <TableCell>
+                              <Badge
+                                className={
+                                  b.status === "active"
+                                    ? "bg-green-100 text-green-700 hover:bg-green-100"
+                                    : b.status === "expired"
+                                      ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-100"
+                                      : "bg-red-100 text-red-700 hover:bg-red-100"
+                                }
+                              >
+                                {b.status}
+                              </Badge>
+                            </TableCell>
+
+                            <TableCell>
+                              <div className="flex justify-center">
+                                {b.status === "active" ? (
+                                  <Button
+                                    size="icon"
+                                    variant="destructive"
+                                    title="Cancel Booking"
+                                    onClick={() => {
+                                      setSelectedBooking(b);
+                                      setShowCancelModal(true);
+                                    }}
+                                  >
+                                    <XCircle className="h-4 w-4" />
+                                  </Button>
+                                ) : (
+                                  "-"
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-
         </div>
       </AdminLayout>
 
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded w-full max-w-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">
+      <Dialog
+        open={showAddModal}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowAddModal(false);
+            setEditMode(false);
+            setEditingRoomId(null);
+
+            setFormData({
+              roomId: "",
+              location: "",
+              roomType: "",
+              capacity: "",
+              facilities: "",
+              department: "",
+            });
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-2xl rounded-2xl bg-white border shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <Building2 className="h-6 w-6 text-primary" />
+
               {editMode ? "Edit Room" : "Add Room"}
-            </h2>
+            </DialogTitle>
 
+            <DialogDescription>
+              {editMode
+                ? "Update room information."
+                : "Create a new room for the campus."}
+            </DialogDescription>
+          </DialogHeader>
 
-            <form onSubmit={handleAddRoom} className="space-y-4">
-              <input
-                name="roomId"
-                placeholder="Room ID *"
-                value={formData.roomId}
-                onChange={handleInputChange}
-                required
-                disabled={editMode}
-                className={`w-full border px-3 py-2 rounded ${
-                  editMode
-                    ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-                    : ""
-                }`}
-              />
+          <form onSubmit={handleAddRoom} className="space-y-6">
+            <div className="grid gap-5 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Room ID</Label>
 
-
-              <input
-                name="location"
-                placeholder="Location *"
-                className="w-full border px-3 py-2 rounded"
-                value={formData.location}
-                onChange={handleInputChange}
-                required
-              />
-
-              <select
-                name="roomType"
-                className="w-full border px-3 py-2 rounded"
-                value={formData.roomType}
-                onChange={handleInputChange}
-                required
-              >
-                <option value="">Room Type *</option>
-                {ROOM_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {type.replace("_", " ").toUpperCase()}
-                  </option>
-                ))}
-              </select>
-
-              <input
-                name="capacity"
-                type="number"
-                placeholder="Capacity *"
-                className="w-full border px-3 py-2 rounded"
-                value={formData.capacity}
-                onChange={handleInputChange}
-                min={1}
-                required
-              />
-
-              <input
-                name="facilities"
-                placeholder="Facilities (optional) — comma separated"
-                className="w-full border px-3 py-2 rounded"
-                value={formData.facilities}
-                onChange={handleInputChange}
-              />
-
-              <input
-                name="department"
-                placeholder="Department (optional)"
-                className="w-full border px-3 py-2 rounded"
-                value={formData.department}
-                onChange={handleInputChange}
-              />
-
-              <div className="flex justify-end gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAddModal(false);
-                    setEditMode(false);
-                    setEditingRoomId(null);
-                    setFormData({
-                      roomId: "",
-                      location: "",
-                      roomType: "",
-                      capacity: "",
-                      facilities: "",
-                      department: ""
-                    });
-                  }}
-                  className="px-4 py-2 border rounded"
-                >
-                  Cancel
-                </button>
-
-
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="bg-blue-600 text-white px-4 py-2 rounded"
-                >
-                  {saving ? "Saving..." : "Save"}
-                </button>
+                <Input
+                  name="roomId"
+                  value={formData.roomId}
+                  onChange={handleInputChange}
+                  disabled={editMode}
+                  placeholder="CR-101"
+                  required
+                />
               </div>
-            </form>
-          </div>
-        </div>
-      )}
 
-      {showBookingModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded w-full max-w-md p-6">
-            <h2 className="text-xl font-semibold mb-4">Book a Room</h2>
+              <div className="space-y-2">
+                <Label>Location</Label>
 
-            {bookingError && (
-              <p className="text-red-600 mb-3">{bookingError}</p>
-            )}
+                <Input
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  placeholder="Academic Block A"
+                  required
+                />
+              </div>
 
-            <div className="space-y-4">
-              {/* Room */}
-              <select
-                value={bookingData.roomId}
-                onChange={(e) =>
-                  setBookingData({ ...bookingData, roomId: e.target.value })
-                }
-                className="w-full border px-3 py-2 rounded"
-              >
-                <option value="">Select Room *</option>
-                {rooms
-                  .filter((r) => r.isActive && r.isBookable)
-                  .map((room) => (
-                    <option key={room.roomId} value={room.roomId}>
-                      {room.roomId} ({room.location})
-                    </option>
-                  ))}
-              </select>
+              <div className="space-y-2">
+                <Label>Room Type</Label>
 
-              {/* Date */}
-              <input
-                type="date"
-                className="w-full border px-3 py-2 rounded"
-                value={bookingData.date}
-                onChange={(e) =>
-                  setBookingData({ ...bookingData, date: e.target.value })
-                }
-              />
-
-              {/* Start Time */}
-              <input
-                type="time"
-                className="w-full border px-3 py-2 rounded"
-                value={bookingData.startTime}
-                onChange={(e) =>
-                  setBookingData({ ...bookingData, startTime: e.target.value })
-                }
-              />
-
-              {/* End Time */}
-              <input
-                type="time"
-                className="w-full border px-3 py-2 rounded"
-                value={bookingData.endTime}
-                onChange={(e) =>
-                  setBookingData({ ...bookingData, endTime: e.target.value })
-                }
-              />
-
-              <div className="flex justify-end gap-3 pt-4">
-                <button
-                  onClick={() => {
-                    setShowBookingModal(false);
-                    setBookingError("");
-                    setBookingData({
-                      roomId: "",
-                      date: "",
-                      startTime: "",
-                      endTime: ""
-                    });
-                  }}
-                  className="px-4 py-2 border rounded"
+                <Select
+                  value={formData.roomType}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      roomType: value,
+                    }))
+                  }
                 >
-                  Cancel
-                </button>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select room type" />
+                  </SelectTrigger>
 
-                <button
-                  onClick={handleCreateBooking}
-                  disabled={bookingLoading}
-                  className="bg-green-600 text-white px-4 py-2 rounded"
-                >
-                  {bookingLoading ? "Booking..." : "Book"}
-                </button>
+                  <SelectContent className="bg-white">
+                    {ROOM_TYPES.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type.replace("_", " ").toUpperCase()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Capacity</Label>
+
+                <Input
+                  name="capacity"
+                  type="number"
+                  min={1}
+                  value={formData.capacity}
+                  onChange={handleInputChange}
+                  placeholder="60"
+                  required
+                />
               </div>
             </div>
+
+            <div className="space-y-2">
+              <Label>Facilities</Label>
+
+              <Textarea
+                name="facilities"
+                value={formData.facilities}
+                onChange={handleInputChange}
+                placeholder="Projector, AC, Smart Board"
+              />
+
+              <p className="text-xs text-muted-foreground">
+                Separate multiple facilities with commas.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Department</Label>
+
+              <Input
+                name="department"
+                value={formData.department}
+                onChange={handleInputChange}
+                placeholder="Computer Science"
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <Button
+                className={"cursor-pointer"}
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setShowAddModal(false);
+                  setEditMode(false);
+                  setEditingRoomId(null);
+
+                  setFormData({
+                    roomId: "",
+                    location: "",
+                    roomType: "",
+                    capacity: "",
+                    facilities: "",
+                    department: "",
+                  });
+                }}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                className="cursor-pointer"
+                type="submit"
+                disabled={saving}
+              >
+                {saving ? "Saving..." : editMode ? "Update Room" : "Add Room"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={showBookingModal}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowBookingModal(false);
+            setBookingError("");
+
+            setBookingData({
+              roomId: "",
+              date: "",
+              startTime: "",
+              endTime: "",
+            });
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-lg rounded-2xl bg-white shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <CalendarPlus className="h-6 w-6 text-primary" />
+              Book Room
+            </DialogTitle>
+
+            <DialogDescription>
+              Select a room and booking schedule.
+            </DialogDescription>
+          </DialogHeader>
+
+          {bookingError && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+              {bookingError}
+            </div>
+          )}
+
+          <div className="space-y-5">
+            {/* Room */}
+
+            <div className="space-y-2">
+              <Label>Room</Label>
+
+              <Select
+                value={bookingData.roomId}
+                onValueChange={(value) =>
+                  setBookingData({
+                    ...bookingData,
+                    roomId: value,
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Room" />
+                </SelectTrigger>
+
+                <SelectContent className="bg-white">
+                  {rooms
+                    .filter((r) => r.isActive && r.isBookable)
+                    .map((room) => (
+                      <SelectItem key={room.roomId} value={room.roomId}>
+                        {room.roomId} • {room.location}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Date */}
+
+            <div className="space-y-2">
+              <Label>Date</Label>
+
+              <Input
+                type="date"
+                value={bookingData.date}
+                onChange={(e) =>
+                  setBookingData({
+                    ...bookingData,
+                    date: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            {/* Time */}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Start Time</Label>
+
+                <Input
+                  type="time"
+                  value={bookingData.startTime}
+                  onChange={(e) =>
+                    setBookingData({
+                      ...bookingData,
+                      startTime: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>End Time</Label>
+
+                <Input
+                  type="time"
+                  value={bookingData.endTime}
+                  onChange={(e) =>
+                    setBookingData({
+                      ...bookingData,
+                      endTime: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowBookingModal(false);
+                  setBookingError("");
+
+                  setBookingData({
+                    roomId: "",
+                    date: "",
+                    startTime: "",
+                    endTime: "",
+                  });
+                }}
+                className={"cursor-pointer"}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                onClick={handleCreateBooking}
+                disabled={bookingLoading}
+                className={"cursor-pointer"}
+              >
+                {bookingLoading ? "Booking..." : "Book Room"}
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
       {showCancelModal && selectedBooking && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded p-6 w-full max-w-sm">
-            <h2 className="text-lg font-semibold mb-3">
-              Cancel Booking
-            </h2>
+            <h2 className="text-lg font-semibold mb-3">Cancel Booking</h2>
 
             <p className="mb-4">
               Are you sure you want to cancel booking #
@@ -773,8 +1124,6 @@ const AdminRooms = () => {
           </div>
         </div>
       )}
-
-
     </>
   );
 };
