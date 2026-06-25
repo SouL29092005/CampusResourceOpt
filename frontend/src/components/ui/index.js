@@ -1,11 +1,20 @@
 // Export all UI components from a single point
 export { Button } from "./button";
 export { Input } from "./input";
-export { Textarea } from "./textarea";
+export { default as Textarea } from "./textarea";
 export { Label } from "./label";
 export { Badge } from "./badge";
-export { Checkbox } from "./checkbox";
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './card';
+export { default as Checkbox } from "./checkbox";
+
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "./card";
+
 export {
   Dialog,
   DialogPortal,
@@ -17,7 +26,8 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-} from './dialog';
+} from "./dialog";
+
 export {
   Select,
   SelectGroup,
@@ -28,7 +38,8 @@ export {
   SelectSeparator,
   SelectScrollUpButton,
   SelectScrollDownButton,
-} from './select';
+} from "./select";
+
 export {
   Table,
   TableHeader,
@@ -38,4 +49,4 @@ export {
   TableRow,
   TableCell,
   TableCaption,
-} from './table';
+} from "./table";

@@ -10,6 +10,7 @@ import {
   Trash2,
   Users as UsersIcon,
   UserPlus,
+  Eye,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -64,6 +65,7 @@ function Users() {
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -644,18 +646,29 @@ function Users() {
               <div className="space-y-2">
                 <Label>Password</Label>
 
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      password: e.target.value,
-                    })
-                  }
-                  className="h-11 rounded-xl"
-                />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        password: e.target.value,
+                      })
+                    }
+                    className="h-11 rounded-xl pr-10"
+                  />
+
+                  <Eye
+                    className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 cursor-pointer text-muted-foreground hover:text-foreground"
+                    onMouseDown={() => setShowPassword(true)}
+                    onMouseUp={() => setShowPassword(false)}
+                    onMouseLeave={() => setShowPassword(false)}
+                    onTouchStart={() => setShowPassword(true)}
+                    onTouchEnd={() => setShowPassword(false)}
+                  />
+                </div>
               </div>
 
               {/* Role */}

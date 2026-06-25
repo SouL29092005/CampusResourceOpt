@@ -3,7 +3,7 @@ import Header from "./Header";
 
 export default function AdminLayout({ children }) {
   return (
-    <div className="relative min-h-screen bg-slate-50 overflow-hidden">
+    <div className="relative min-h-screen bg-slate-50 overflow-x-hidden overflow-y-visible">
 
       {/* Soft Background Effects */}
       <div className="absolute inset-0">
@@ -24,7 +24,7 @@ export default function AdminLayout({ children }) {
             <Header />
           </div>
 
-          <main className="flex-1 p-6 md:p-8">
+          <main className="flex-1 p-6 md:p-8 overflow-visible">
             <div
               className="
                 min-h-full
