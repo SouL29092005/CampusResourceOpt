@@ -40,6 +40,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui";
+import Footer from "@/components/Footer";
 
 export default function StudentDashboard() {
   const [issues, setIssues] = useState([]);
@@ -599,6 +600,8 @@ export default function StudentDashboard() {
           </>
         )}
       </div>
+
+      <Footer/>
     </div>
   );
 }

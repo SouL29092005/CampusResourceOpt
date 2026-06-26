@@ -119,15 +119,17 @@ export default function ViewProfile() {
                     </div>
                   </div>
 
-                  {/* Right
-                  <Button
-                    size="lg"
-                    onClick={() => setShowEditModal(true)}
-                    className="cursor-pointer rounded-xl bg-white text-slate-900 shadow-md transition-all hover:scale-105 hover:bg-slate-100"
-                  >
-                    <Pencil className="mr-2 h-4 w-4" />
-                    Edit Profile
-                  </Button> */}
+                  {/* Right */}
+                  {userData?.role === "faculty" && (
+                    <Button
+                      size="lg"
+                      onClick={() => setShowEditModal(true)}
+                      className="cursor-pointer rounded-xl bg-white text-slate-900 shadow-md transition-all hover:scale-105 hover:bg-slate-100"
+                    >
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Edit Profile
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
