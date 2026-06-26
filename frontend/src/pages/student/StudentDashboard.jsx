@@ -1,8 +1,45 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyIssues } from "../../api/library.api";
-import { getMyBookings, getAllEquipments, getFreeSlots, bookEquipment, cancelBooking } from "../../api/lab.api";
+import {
+  getMyBookings,
+  getAllEquipments,
+  getFreeSlots,
+  bookEquipment,
+  cancelBooking,
+} from "../../api/lab.api";
 import ViewProfile from "../../components/profile/ViewProfile";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  LogOut,
+  GraduationCap,
+  LayoutDashboard,
+  User,
+  BookOpen,
+  FlaskConical,
+  CalendarDays,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import Navbar from "@/components/Navbar";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Badge,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui";
 
 export default function StudentDashboard() {
   const [issues, setIssues] = useState([]);
@@ -51,7 +88,7 @@ export default function StudentDashboard() {
       const res = await getMyBookings();
       const all = Array.isArray(res?.data?.bookings) ? res.data.bookings : [];
       // only show active bookings
-      setBookings(all.filter(b => b.status === "active"));
+      setBookings(all.filter((b) => b.status === "active"));
     } catch (err) {
       console.error(err);
       setBookings([]);
@@ -64,7 +101,9 @@ export default function StudentDashboard() {
     try {
       setLoadingEquipments(true);
       const res = await getAllEquipments();
-      setEquipments(Array.isArray(res?.data?.equipments) ? res.data.equipments : []);
+      setEquipments(
+        Array.isArray(res?.data?.equipments) ? res.data.equipments : [],
+      );
     } catch (err) {
       console.error(err);
       setEquipments([]);
@@ -168,195 +207,398 @@ export default function StudentDashboard() {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-2xl font-bold">Student Dashboard</h1>
-          <p className="text-sm text-gray-600">Welcome, {userName || 'Student'}!</p>
-        </div>
-
-        <button onClick={handleLogout} className="bg-red-600 text-white px-4 py-2 rounded font-semibold hover:bg-red-700">Logout</button>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="mb-6 flex gap-4 border-b-2">
-        <button
-          onClick={() => setActiveTab("dashboard")}
-          className={`px-4 py-2 font-semibold transition ${
-            activeTab === "dashboard"
-              ? "border-b-2 border-blue-500 text-blue-600"
-              : "text-gray-600 hover:text-gray-800"
-          }`}
-        >
-          Dashboard
-        </button>
-        <button
-          onClick={() => setActiveTab("profile")}
-          className={`px-4 py-2 font-semibold transition ${
-            activeTab === "profile"
-              ? "border-b-2 border-blue-500 text-blue-600"
-              : "text-gray-600 hover:text-gray-800"
-          }`}
-        >
-          My Profile
-        </button>
-      </div>
-
-      {/* Profile Tab */}
-      {activeTab === "profile" && <ViewProfile />}
-
-      {/* Dashboard Tab */}
-      {activeTab === "dashboard" && (
-        <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-lg font-semibold mb-4">My Borrowed Books</h2>
-
-          {loadingIssues ? (
-            <p className="text-gray-500">Loading...</p>
-          ) : issues.length === 0 ? (
-            <p className="text-gray-500">No borrowed books found.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="p-2 border">Book</th>
-                    <th className="p-2 border">Issued At</th>
-                    <th className="p-2 border">Due At</th>
-                    <th className="p-2 border">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {issues.map((iss) => (
-                    <tr key={iss._id}>
-                      <td className="p-2 border">{iss.book?.title}</td>
-                      <td className="p-2 border">{new Date(iss.issuedAt).toLocaleDateString()}</td>
-                      <td className="p-2 border">{new Date(iss.dueAt).toLocaleDateString()}</td>
-                      <td className="p-2 border">{iss.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        <div className="bg-white p-6 rounded shadow">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">My Lab Bookings</h2>
-            <button
-              onClick={() => { setShowBookingModal(true); setSelectedEquipment(null); setFreeSlots([]); setCustomStart(""); setCustomEnd(""); }}
-              className="bg-blue-600 text-white px-3 py-1 rounded"
-            >
-              + Book Equipment
-            </button>
-          </div>
-
-          {loadingBookings ? (
-            <p className="text-gray-500">Loading...</p>
-          ) : bookings.length === 0 ? (
-            <p className="text-gray-500">No bookings found.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="p-2 border">Equipment</th>
-                    <th className="p-2 border">Lab</th>
-                    <th className="p-2 border">Date</th>
-                    <th className="p-2 border">Time</th>
-                    <th className="p-2 border">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bookings.map((b) => (
-                    <tr key={b._id}>
-                      <td className="p-2 border">{b.equipment?.name}</td>
-                      <td className="p-2 border">{b.equipment?.labName}</td>
-                      <td className="p-2 border">{new Date(b.startTime).toLocaleDateString()}</td>
-                      <td className="p-2 border">{new Date(b.startTime).toLocaleTimeString()} – {new Date(b.endTime).toLocaleTimeString()}</td>
-                      <td className="p-2 border">
-                        <button onClick={() => handleCancel(b._id)} className="text-red-600">Cancel</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Booking modal */}
-      {showBookingModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white w-full max-w-2xl rounded-lg p-6 relative">
-            <h2 className="text-lg font-semibold mb-4">Book Equipment</h2>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">Select Equipment</label>
-                <select className="w-full border p-2 rounded" onChange={(e) => {
-                  const eq = equipments.find(x => x._id === e.target.value);
-                  if (eq) openBookingModal(eq);
-                }}>
-                  <option value="">-- Select --</option>
-                  {equipments.map(eq => (
-                    <option key={eq._id} value={eq._id}>{`#${eq.equipmentNumber} - ${eq.name} (${eq.labName})`}</option>
-                  ))}
-                </select>
+    <div className="min-h-screen bg-slate-50">
+      <div className="container mx-auto max-w-7xl px-6 py-8">
+        <Card className="mb-8 overflow-hidden border-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-xl">
+          <CardContent className="flex flex-col gap-6 p-8 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-5">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm">
+                <GraduationCap className="h-8 w-8 text-white" />
               </div>
 
-              {selectedEquipment && (
-                <div className="bg-gray-50 p-3 rounded">
-                  <h3 className="font-semibold">{selectedEquipment.name}</h3>
-                  <p className="text-sm text-gray-600">{selectedEquipment.description}</p>
+              <div>
+                <p className="text-sm font-medium text-blue-100">
+                  Welcome back,
+                </p>
 
-                  <div className="mt-3">
-                    <h4 className="font-medium">Available Slots (next 3 days)</h4>
+                <h1 className="mt-1 text-3xl font-bold tracking-tight text-white">
+                  {userName || "Student"}
+                </h1>
 
-                    {slotLoading ? (
-                      <p className="text-gray-500">Loading slots...</p>
-                    ) : freeSlots.length === 0 ? (
-                      <p className="text-gray-500">No free slots available.</p>
-                    ) : (
-                      <div className="space-y-2 mt-2">
-                        {freeSlots.map((s, idx) => (
-                          <div key={idx} className="p-2 border rounded">
-                            <div className="text-sm">{new Date(s.freeFrom).toLocaleString()} – {new Date(s.freeTo).toLocaleString()}</div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                <p className="mt-2 text-sm text-blue-100">
+                  Manage your library books, laboratory bookings, and campus
+                  resources from one place.
+                </p>
+              </div>
+            </div>
 
-                    <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-sm text-gray-700 mb-1">Start Time</label>
-                        <input type="datetime-local" value={customStart} onChange={(e) => setCustomStart(e.target.value)} className="w-full border p-2 rounded" />
-                      </div>
+            <Button
+              onClick={handleLogout}
+              variant="secondary"
+              className="gap-2 rounded-xl bg-white text-slate-900 shadow-md hover:bg-slate-100"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          </CardContent>
+        </Card>
 
-                      <div>
-                        <label className="block text-sm text-gray-700 mb-1">End Time</label>
-                        <input type="datetime-local" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} className="w-full border p-2 rounded" />
-                      </div>
+        {/* Tab Navigation */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+          <TabsList className="rounded-2xl bg-slate-100 p-2 py-6">
+            <TabsTrigger
+              value="dashboard"
+              className="cursor-pointer rounded-xl px-8 py-4 text-base font-medium"
+            >
+              <LayoutDashboard className="mr-2 h-5 w-5" />
+              Dashboard
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="profile"
+              className="cursor-pointer rounded-xl px-8 py-4 text-base font-medium"
+            >
+              <User className="mr-2 h-5 w-5" />
+              My Profile
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {/* Profile Tab */}
+        {activeTab === "profile" && <ViewProfile />}
+
+        {/* Dashboard Tab */}
+        {activeTab === "dashboard" && (
+          <>
+            <div className="space-y-6">
+              <Card className="rounded-2xl shadow-sm border hover:shadow-md transition-all">
+                {/* Header */}
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <BookOpen className="h-5 w-5 text-blue-600" />
+                      My Borrowed Books
+                    </CardTitle>
+
+                    <CardDescription className={"py-2"}>
+                      Currently issued books
+                    </CardDescription>
+                  </div>
+
+                  <Badge variant="secondary">{issues.length} Books</Badge>
+                </CardHeader>
+
+                {/* Borrowed Books Table */}
+                {loadingIssues ? (
+                  <p className="text-gray-500">Loading...</p>
+                ) : issues.length === 0 ? (
+                  <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+                      <BookOpen className="h-8 w-8 text-blue-600" />
                     </div>
 
-                    <p className="text-xs text-gray-500 mt-2">Note: Free slots are shown for reference only. Please choose your desired start and end times within the 3 day window.</p>
+                    <h3 className="mt-5 text-lg font-semibold text-slate-900">
+                      No Borrowed Books
+                    </h3>
+
+                    <p className="mt-2 max-w-sm text-sm text-slate-500">
+                      You don't have any borrowed books at the moment. Any books
+                      you borrow from the library will appear here.
+                    </p>
+                  </CardContent>
+                ) : (
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Book</TableHead>
+                            <TableHead>Issued</TableHead>
+                            <TableHead>Due</TableHead>
+                            <TableHead>Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+
+                        <TableBody>
+                          {issues.map((iss) => (
+                            <TableRow key={iss._id}>
+                              <TableCell className="font-medium">
+                                {iss.book?.title}
+                              </TableCell>
+
+                              <TableCell className="text-muted-foreground">
+                                {new Date(iss.issuedAt).toLocaleDateString()}
+                              </TableCell>
+
+                              <TableCell className="text-muted-foreground">
+                                {new Date(iss.dueAt).toLocaleDateString()}
+                              </TableCell>
+
+                              <TableCell>
+                                <Badge
+                                  variant={
+                                    iss.status === "OVERDUE"
+                                      ? "destructive"
+                                      : "secondary"
+                                  }
+                                >
+                                  {iss.status}
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+
+              <Card className="rounded-2xl border shadow-sm transition-all hover:shadow-md">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2 text-xl">
+                      <FlaskConical className="h-5 w-5 text-indigo-600" />
+                      My Lab Bookings
+                    </CardTitle>
+
+                    <CardDescription>
+                      View and manage your active laboratory equipment bookings.
+                    </CardDescription>
                   </div>
-                </div>
-              )}
+
+                  <Button
+                    onClick={() => {
+                      setShowBookingModal(true);
+                      setSelectedEquipment(null);
+                      setFreeSlots([]);
+                      setCustomStart("");
+                      setCustomEnd("");
+                    }}
+                    className="cursor-pointer rounded-xl"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Book Equipment
+                  </Button>
+                </CardHeader>
+
+                <CardContent>
+                  {loadingBookings ? (
+                    <p className="text-muted-foreground">Loading bookings...</p>
+                  ) : bookings.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100">
+                        <CalendarDays className="h-8 w-8 text-indigo-600" />
+                      </div>
+
+                      <h3 className="mt-5 text-lg font-semibold">
+                        No Active Bookings
+                      </h3>
+
+                      <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+                        You haven't booked any laboratory equipment yet.
+                      </p>
+
+                      <Button
+                        className="mt-6"
+                        onClick={() => {
+                          setShowBookingModal(true);
+                          setSelectedEquipment(null);
+                          setFreeSlots([]);
+                          setCustomStart("");
+                          setCustomEnd("");
+                        }}
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Book Equipment
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Equipment</TableHead>
+                            <TableHead>Lab</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Time</TableHead>
+                            <TableHead className="text-right">Action</TableHead>
+                          </TableRow>
+                        </TableHeader>
+
+                        <TableBody>
+                          {bookings.map((b) => (
+                            <TableRow key={b._id}>
+                              <TableCell className="font-medium">
+                                {b.equipment?.name}
+                              </TableCell>
+
+                              <TableCell>
+                                <Badge variant="secondary">
+                                  {b.equipment?.labName}
+                                </Badge>
+                              </TableCell>
+
+                              <TableCell className="text-muted-foreground">
+                                {new Date(b.startTime).toLocaleDateString()}
+                              </TableCell>
+
+                              <TableCell className="text-muted-foreground">
+                                {new Date(b.startTime).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                                {" - "}
+                                {new Date(b.endTime).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </TableCell>
+
+                              <TableCell className="text-right">
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  className="cursor-pointer"
+                                  onClick={() => handleCancel(b._id)}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Cancel
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
 
-            <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => { setShowBookingModal(false); setSelectedEquipment(null); }} className="px-4 py-2 border rounded">Cancel</button>
-              <button onClick={handleBook} disabled={bookingLoading} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">{bookingLoading ? 'Booking...' : 'Book'}</button>
-            </div>
-          </div>
-        </div>
-      )}
-        </>
-      )}
+            {/* Booking modal */}
+            {showBookingModal && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                <div className="bg-white w-full max-w-2xl rounded-lg p-6 relative">
+                  <h2 className="text-lg font-semibold mb-4">Book Equipment</h2>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">
+                        Select Equipment
+                      </label>
+                      <select
+                        className="w-full border p-2 rounded"
+                        onChange={(e) => {
+                          const eq = equipments.find(
+                            (x) => x._id === e.target.value,
+                          );
+                          if (eq) openBookingModal(eq);
+                        }}
+                      >
+                        <option value="">-- Select --</option>
+                        {equipments.map((eq) => (
+                          <option
+                            key={eq._id}
+                            value={eq._id}
+                          >{`#${eq.equipmentNumber} - ${eq.name} (${eq.labName})`}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {selectedEquipment && (
+                      <div className="bg-gray-50 p-3 rounded">
+                        <h3 className="font-semibold">
+                          {selectedEquipment.name}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {selectedEquipment.description}
+                        </p>
+
+                        <div className="mt-3">
+                          <h4 className="font-medium">
+                            Available Slots (next 3 days)
+                          </h4>
+
+                          {slotLoading ? (
+                            <p className="text-gray-500">Loading slots...</p>
+                          ) : freeSlots.length === 0 ? (
+                            <p className="text-gray-500">
+                              No free slots available.
+                            </p>
+                          ) : (
+                            <div className="space-y-2 mt-2">
+                              {freeSlots.map((s, idx) => (
+                                <div key={idx} className="p-2 border rounded">
+                                  <div className="text-sm">
+                                    {new Date(s.freeFrom).toLocaleString()} –{" "}
+                                    {new Date(s.freeTo).toLocaleString()}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-sm text-gray-700 mb-1">
+                                Start Time
+                              </label>
+                              <input
+                                type="datetime-local"
+                                value={customStart}
+                                onChange={(e) => setCustomStart(e.target.value)}
+                                className="w-full border p-2 rounded"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-sm text-gray-700 mb-1">
+                                End Time
+                              </label>
+                              <input
+                                type="datetime-local"
+                                value={customEnd}
+                                onChange={(e) => setCustomEnd(e.target.value)}
+                                className="w-full border p-2 rounded"
+                              />
+                            </div>
+                          </div>
+
+                          <p className="text-xs text-gray-500 mt-2">
+                            Note: Free slots are shown for reference only.
+                            Please choose your desired start and end times
+                            within the 3 day window.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex justify-end gap-3 mt-6">
+                    <button
+                      onClick={() => {
+                        setShowBookingModal(false);
+                        setSelectedEquipment(null);
+                      }}
+                      className="px-4 py-2 border rounded"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleBook}
+                      disabled={bookingLoading}
+                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    >
+                      {bookingLoading ? "Booking..." : "Book"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
