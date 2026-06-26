@@ -138,14 +138,23 @@ export const createBooking = async ({
   });
 };
 
-export const cancelBooking = async (bookingId, userId) => {
-  const booking = await Booking.findById(bookingId);
+export const cancelBooking = async (bookingId, userId, requesterRole) => {
+  const booking = await Booking.findById(bookingId).populate("equipment");
 
   if (!booking) {
     throw new Error("Booking not found");
   }
 
-  if (booking.bookedBy.toString() !== userId.toString()) {
+  if (booking.status !== "active") {
+    throw new Error("Only active bookings can be cancelled");
+  }
+
+  const isBooker = booking.bookedBy.toString() === userId.toString();
+  const isMaintainer =
+    requesterRole === "lab_admin" &&
+    booking.equipment?.maintainedBy?.toString() === userId.toString();
+
+  if (!isBooker && !isMaintainer && requesterRole !== "admin") {
     throw new Error("Unauthorized cancellation");
   }
 
@@ -191,7 +200,23 @@ export const getFreeSlots = async (equipmentNumber) => {
 
 export const getAllActiveBookings = async () => {
   return await Booking.find({ status: "active" })
-    .populate("equipment", "name labName location equipmentNumber")
+    .populate("equipment", "name labName location equipmentNumber maintainedBy")
+    .populate("bookedBy", "name email")
+    .sort({ startTime: 1 });
+};
+
+export const getActiveBookingsByMaintainer = async (maintainerId) => {
+  const equipmentIds = await Equipment.find({ maintainedBy: maintainerId }).distinct("_id");
+
+  if (equipmentIds.length === 0) {
+    return [];
+  }
+
+  return await Booking.find({
+    status: "active",
+    equipment: { $in: equipmentIds }
+  })
+    .populate("equipment", "name labName location equipmentNumber maintainedBy")
     .populate("bookedBy", "name email")
     .sort({ startTime: 1 });
 };
@@ -209,11 +234,37 @@ export const getAllEquipmentsService = async () => {
     .sort({ createdAt: -1 });
 };
 
-export const deleteEquipmentById = async (equipmentId) => {
+export const getEquipmentsByMaintainer = async (maintainerId) => {
+  return await Equipment.find({ maintainedBy: maintainerId })
+    .populate("maintainedBy", "name email role")
+    .sort({ createdAt: -1 });
+};
+
+export const deleteEquipmentById = async (
+  equipmentId,
+  requesterRole,
+  requesterUserId
+) => {
   const equipment = await Equipment.findById(equipmentId);
 
   if (!equipment) {
     throw new Error("Equipment not found");
+  }
+
+  if (
+    requesterRole === "lab_admin" &&
+    equipment.maintainedBy.toString() !== requesterUserId.toString()
+  ) {
+    throw new Error("Unauthorized to delete this equipment");
+  }
+
+  const activeBooking = await Booking.exists({
+    equipment: equipment._id,
+    status: "active"
+  });
+
+  if (activeBooking) {
+    throw new Error("Cannot delete equipment with active bookings");
   }
 
   await LabAdminProfile.updateOne(

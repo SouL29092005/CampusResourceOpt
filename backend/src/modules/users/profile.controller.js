@@ -25,7 +25,10 @@ export const getMyProfile = async (req, res) => {
       break;
 
     case "lab_admin":
-      profile = await LabAdminProfile.findOne({ userId: user._id });
+      profile = await LabAdminProfile.findOne({ userId: user._id }).populate(
+        "managedEquipment",
+        "name equipmentNumber labName status"
+      );
       break;
   }
 

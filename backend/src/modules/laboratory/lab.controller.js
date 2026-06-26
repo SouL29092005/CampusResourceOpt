@@ -2,8 +2,10 @@ import { createEquipment,
   updateEquipmentService, 
   createBooking, 
   cancelBooking, 
-  getAllActiveBookings, 
-  getAllEquipmentsService, 
+  getAllActiveBookings,
+  getActiveBookingsByMaintainer,
+  getAllEquipmentsService,
+  getEquipmentsByMaintainer,
   deleteEquipmentById,
   getBookingsByUser,
   getFreeSlots as getFreeSlotsService } from "./lab.service.js";
@@ -104,7 +106,8 @@ export const cancelEquipmentBooking = async (req, res) => {
 
     const booking = await cancelBooking(
       bookingId,
-      req.user._id
+      req.user._id,
+      req.user.role
     );
 
     res.status(200).json({
@@ -157,7 +160,10 @@ export const getUserBookings = async (req, res) => {
 
 export const getAllActiveEquipmentBookings = async (req, res) => {
   try {
-    const bookings = await getAllActiveBookings();
+    const bookings =
+      req.user.role === "lab_admin"
+        ? await getActiveBookingsByMaintainer(req.user._id)
+        : await getAllActiveBookings();
 
     res.status(200).json({
       success: true,
@@ -174,7 +180,10 @@ export const getAllActiveEquipmentBookings = async (req, res) => {
 
 export const getAllEquipments = async (req, res) => {
   try {
-    const equipments = await getAllEquipmentsService();
+    const equipments =
+      req.user.role === "lab_admin"
+        ? await getEquipmentsByMaintainer(req.user._id)
+        : await getAllEquipmentsService();
 
     res.status(200).json({
       success: true,
@@ -193,7 +202,7 @@ export const deleteEquipment = async (req, res) => {
   try {
     const { id } = req.params;
 
-    await deleteEquipmentById(id);
+    await deleteEquipmentById(id, req.user.role, req.user._id);
 
     res.status(200).json({
       success: true,

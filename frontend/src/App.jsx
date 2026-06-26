@@ -16,6 +16,7 @@ import LibrarianDashboard from "./pages/librarian/LibrarianDashboard";
 
 import StudentDashboard from "./pages/student/StudentDashboard";
 import FacultyDashboard from "./pages/faculty/FacultyDashboard";
+import LabAdmin from "./pages/labadmin/LabAdmin";
 
 export default function App() {
   return (
@@ -49,6 +50,11 @@ export default function App() {
       {/* Faculty Protected Routes */}
       <Route element={<ProtectedRoute allowedRoles={["faculty"]} />}>
         <Route path="/faculty/dashboard" element={<FacultyDashboard />} />
+      </Route>
+
+      {/* Lab Admin Protected Routes */}
+      <Route element={<ProtectedRoute allowedRoles={["lab_admin"]} />}>
+        <Route path="/lab-admin/dashboard" element={<LabAdmin />} />
       </Route>
     </Routes>
   );

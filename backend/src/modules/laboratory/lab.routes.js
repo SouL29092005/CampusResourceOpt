@@ -44,7 +44,7 @@ router.get(
 router.patch(
   "/booking/:bookingId/cancel",
   protect,
-  allowRoles("student"),
+  allowRoles("student", "lab_admin", "admin"),
   cancelEquipmentBooking
 );
 
