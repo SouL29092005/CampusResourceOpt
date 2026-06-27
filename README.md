@@ -1,4 +1,4 @@
-# Campus Timetable & Resource Management System
+# Campus Resource Management System
 
 A full-stack web application for managing campus resources — library books, laboratory equipment, room bookings, courses, and timetables — with role-based dashboards for students, faculty, librarians, lab admins, and administrators.
 
