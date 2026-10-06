@@ -8,9 +8,10 @@ import subjectRoutes from "./modules/timetable/course.routes.js";
 import libraryRoutes from "./modules/library/library.routes.js";
 import labRoutes from "./modules/laboratory/lab.routes.js";
 import roomRoutes from "./modules/room/room.routes.js";
-import timetableRotues from "./modules/timetable/timetable.routes.js";
 import roomBookingRoutes from "./modules/room/roomBooking.routes.js";
 import adminRoutes from "./modules/admin/admin.routes.js";
+import conversationRoutes from "./modules/comms/routes/conversation.routes.js";
+import messageRoutes from "./modules/comms/routes/message.routes.js";
 
 const router = express.Router();
 
@@ -25,5 +26,7 @@ router.use("/room", roomRoutes);
 router.use("/timetable", timetableRotues);
 router.use("/roomBooking", roomBookingRoutes);
 router.use("/admin", adminRoutes);
+router.use("/conversations", conversationRoutes);
+router.use("/messages", messageRoutes);
 
 export default router;
