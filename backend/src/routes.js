@@ -23,7 +23,6 @@ router.use("/subject", subjectRoutes);
 router.use("/library", libraryRoutes);
 router.use("/lab", labRoutes);
 router.use("/room", roomRoutes);
-router.use("/timetable", timetableRotues);
 router.use("/roomBooking", roomBookingRoutes);
 router.use("/admin", adminRoutes);
 router.use("/conversations", conversationRoutes);
