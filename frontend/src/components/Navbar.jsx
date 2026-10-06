@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { MessageCircle } from "lucide-react";
 
 export default function Navbar() {
   const scrollToContact = () => {
@@ -10,6 +11,8 @@ export default function Navbar() {
       });
     }
   };
+
+  const isAuthenticated = Boolean(localStorage.getItem("token"));
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/50 bg-white/70 backdrop-blur-xl">
@@ -35,6 +38,16 @@ export default function Navbar() {
 
         {/* Navigation */}
         <nav className="flex items-center gap-3">
+          {isAuthenticated && (
+            <Link
+              to="/messages"
+              className="hidden items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition-all hover:bg-slate-100 hover:text-blue-600 sm:flex"
+            >
+              <MessageCircle className="h-4 w-4" />
+              Messages
+            </Link>
+          )}
+
           <Link
             to="/login"
             className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition-all hover:bg-slate-100 hover:text-blue-600"

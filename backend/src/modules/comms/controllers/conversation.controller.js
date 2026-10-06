@@ -3,7 +3,7 @@ import {
     getUserConversations,
     getConversationById,
     deleteConversation
-} from "../services/conversation.service";
+} from "../services/conversation.service.js";
 
 
 export const createConversationController = async (req, res) => {

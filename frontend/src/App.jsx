@@ -17,6 +17,7 @@ import LibrarianDashboard from "./pages/librarian/LibrarianDashboard";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import FacultyDashboard from "./pages/faculty/FacultyDashboard";
 import LabAdmin from "./pages/labadmin/LabAdmin";
+import Messages from "./pages/Messages";
 
 export default function App() {
   return (
@@ -50,6 +51,11 @@ export default function App() {
       {/* Faculty Protected Routes */}
       <Route element={<ProtectedRoute allowedRoles={["faculty"]} />}>
         <Route path="/faculty/dashboard" element={<FacultyDashboard />} />
+      </Route>
+
+      {/* Communication - available to every authenticated role */}
+      <Route element={<ProtectedRoute allowedRoles={["admin", "student", "faculty", "librarian", "lab_admin"]} />}>
+        <Route path="/messages" element={<Messages />} />
       </Route>
 
       {/* Lab Admin Protected Routes */}
