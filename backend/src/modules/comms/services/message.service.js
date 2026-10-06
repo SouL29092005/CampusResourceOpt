@@ -4,7 +4,7 @@ import Conversation from "../models/Conversation.model.js";
 
 // Send a message
 export const sendMessage = async (conversationId, senderId, content) => {
-    if (!content || !content.trim()) {
+    if (typeof content !== "string" || !content.trim()) {
         throw new Error("Message content is required");
     }
 

@@ -4,7 +4,7 @@ import { Server } from "socket.io";
 import { startBookingStatusJob } from "./jobs/bookingStatus.job.js";
 import { startRoomBookingStatusJob } from "./jobs/roomBookingStatus.job.js";
 import { startIssueOverdueJob } from "./jobs/issueOverdue.job.js";
-
+import { initializeCommsSocket } from "./modules/comms/socket/commsSocket.js";
 
 import app from "./app.js";
 import connectDB from "./config/db.js";
@@ -39,14 +39,7 @@ const startServer = async () => {
   });
 
   app.set("io", io);
-
-  io.on("connection", (socket) => {
-    console.log("Socket connected:", socket.id);
-
-    socket.on("disconnect", () => {
-      console.log("Socket disconnected:", socket.id);
-    });
-  });
+  initializeCommsSocket(io);
 
   server.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

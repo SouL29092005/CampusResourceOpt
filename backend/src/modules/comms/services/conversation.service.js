@@ -16,28 +16,50 @@ export const createConversation = async (currentUserId, otherUserId) => {
         throw new Error("User not found");
     }
 
+    const participantKey = [
+        currentUserId.toString(),
+        otherUserId.toString()
+    ].sort().join("_");
+
     let conversation = await Conversation.findOne({
-        participants: {
-            $all: [currentUserId, otherUserId]
-        }
+        $or: [
+            { participantKey },
+            {
+                participants: {
+                    $all: [currentUserId, otherUserId]
+                }
+            }
+        ]
     }).populate(
         "participants",
-        "fullname email role profile"
+        "name email role"
     );
 
-    if (conversation) {
-        return conversation;
-    }
+    if (!conversation) {
+        try {
+            conversation = await Conversation.create({
+                participants: [currentUserId, otherUserId],
+                participantKey
+            });
+        } catch (error) {
+            if (error?.code !== 11000) {
+                throw error;
+            }
 
-    conversation = await Conversation.create({
-        participants: [currentUserId, otherUserId]
-    });
+            conversation = await Conversation.findOne({
+                participantKey
+            });
 
-    conversation = await Conversation.findById(conversation._id)
-        .populate(
+            if (!conversation) {
+                throw error;
+            }
+        }
+
+        await conversation.populate(
             "participants",
-            "fullname email role profile"
+            "name email role"
         );
+    }
 
     return conversation;
 };
@@ -49,7 +71,7 @@ export const getUserConversations = async (userId) => {
     })
         .populate(
             "participants",
-            "fullname email role profile"
+            "name email role"
         )
         .sort({
             lastMessageAt: -1,
@@ -69,7 +91,7 @@ export const getConversationById = async (
         participants: userId
     }).populate(
         "participants",
-        "fullname email role profile"
+        "name email role"
     );
 
     if (!conversation) {
@@ -96,7 +118,7 @@ export const updateLastMessage = async (
         }
     ).populate(
         "participants",
-        "fullname email role profile"
+        "name email role"
     );
 
     if (!conversation) {
