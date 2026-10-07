@@ -73,6 +73,10 @@ export const getUserConversations = async (userId) => {
             "participants",
             "name email role"
         )
+        .populate(
+            "lastMessage",
+            "content sender createdAt readAt deletedAt"
+        )
         .sort({
             lastMessageAt: -1,
             updatedAt: -1
