@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Loader2, Send } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
+import Textarea from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
 export default function MessageInput({ onSend, disabled = false }) {

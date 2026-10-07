@@ -338,6 +338,11 @@ export default function StudentDashboard() {
 
                               <TableCell>
                                 <Badge
+                                  className={
+                                    iss.status === "OVERDUE"
+                                    ? "bg-red-500 text-white"
+                                    : ""
+                                  }
                                   variant={
                                     iss.status === "OVERDUE"
                                       ? "destructive"
