@@ -13,6 +13,9 @@ export const socket = io(SOCKET_URL, {
 
 // Connect socket
 export const connectSocket = () => {
+    const token = localStorage.getItem("token");
+    socket.auth = { token };
+
     if (!socket.connected) {
         socket.connect();
     }
@@ -54,10 +57,11 @@ export const leaveConversation = (conversationId) => {
 
 
 // Send message event
-export const emitNewMessage = (message) => {
+export const emitNewMessage = (message, acknowledge) => {
     socket.emit(
         "message:send",
-        message
+        message,
+        acknowledge
     );
 };
 
