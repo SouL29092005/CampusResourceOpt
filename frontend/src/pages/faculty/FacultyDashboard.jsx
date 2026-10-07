@@ -78,6 +78,7 @@ export default function FacultyDashboard() {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("userName");
+    localStorage.removeItem("userId");
     navigate("/login");
   };
 

@@ -162,6 +162,7 @@ export default function LibrarianDashboard() {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("userName");
+    localStorage.removeItem("userId");
     navigate("/login");
   };
 

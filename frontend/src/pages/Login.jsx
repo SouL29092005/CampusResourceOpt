@@ -46,6 +46,9 @@ function Login() {
 
       localStorage.setItem("token", token);
       localStorage.setItem("role", user.role);
+      if (user?._id || user?.id) {
+        localStorage.setItem("userId", user._id || user.id);
+      }
 
       if (user?.name) {
         localStorage.setItem("userName", user.name);
