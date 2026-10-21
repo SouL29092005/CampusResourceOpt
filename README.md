@@ -38,10 +38,17 @@ Campus Resource Opt centralizes day-to-day campus operations into a single platf
 | `/faculty/dashboard` | Faculty |
 | `/librarian/dashboard` | Librarian |
 | `/lab-admin/dashboard` | Lab Admin |
+| `/messages` | Authenticated users |
 
 ---
 
 ## Features by Role
+
+### Messaging (All Authenticated Users)
+- Start one-to-one conversations by searching for another campus user's email
+- Send and receive messages in real time
+- View read receipts and delete messages you sent
+- Clear all messages in a conversation or delete the conversation
 
 ### Admin
 - Dashboard with system-wide statistics (users, books, equipment, active bookings)
@@ -118,7 +125,7 @@ Campus Resource Opt centralizes day-to-day campus operations into a single platf
 | **Frontend** | React 19, Vite, React Router, Tailwind CSS, Radix UI, Axios, Lucide Icons |
 | **Backend** | Node.js, Express 5, MongoDB, Mongoose |
 | **Auth** | JWT, bcrypt |
-| **Real-time** | Socket.io (initialized, ready for extensions) |
+| **Real-time** | Socket.io (live messaging, read receipts, and message deletion) |
 | **Automation** | node-cron (booking status, overdue tracking) |
 | **Testing** | Jest, Supertest |
 
@@ -136,6 +143,7 @@ CampusResourceOpt/
 │       ├── modules/
 │       │   ├── admin/       # Dashboard stats
 │       │   ├── auth/        # Login, password change
+│       │   ├── comms/       # Conversations, messages, Socket.io events
 │       │   ├── library/     # Books, issues, returns
 │       │   ├── laboratory/  # Equipment & bookings
 │       │   ├── room/        # Rooms & room bookings
@@ -149,7 +157,7 @@ CampusResourceOpt/
 └── frontend/
     └── src/
         ├── api/             # Axios API wrappers
-        ├── components/      # Shared UI, layouts, profile
+        ├── components/      # Shared UI, layouts, profile, messaging
         └── pages/
             ├── admin/       # Admin panel pages
             ├── student/
@@ -302,8 +310,12 @@ All endpoints are prefixed with `/api`.
 | Timetable | `/timetable` | CSV upload, timetable entries |
 | Courses | `/subject` | Course management |
 | Admin | `/admin` | Dashboard statistics |
+| Conversations | `/conversations` | Create/find, list, fetch, clear, or delete conversations |
+| Messages | `/messages` | Fetch/send messages, delete a sent message, mark a message as read |
 
 **Health check:** `GET /health`
+
+All messaging REST endpoints require authentication. Conversations use `POST /conversations`, `GET /conversations`, and `GET /conversations/:conversationId`; clear a chat with `DELETE /conversations/:conversationId/messages` and delete it with `DELETE /conversations/:conversationId`. Messages use `GET` and `POST /messages/conversation/:conversationId`, `DELETE /messages/:messageId`, and `PATCH /messages/:messageId/read`. Socket.io delivers new messages and read/deletion updates to participants in a joined conversation.
 
 ---
 
