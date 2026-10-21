@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, MessageSquare } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { getConversations } from "../api/conversation.api";
 import { getMyProfile } from "../api/profile.api";
 import { connectSocket, disconnectSocket } from "../socket/commsSocket";
@@ -7,6 +8,7 @@ import ConversationList from "../components/messaging/ConversationList";
 import ChatWindow from "../components/messaging/ChatWindow";
 
 export default function Messages() {
+  const navigate = useNavigate();
   const [conversations, setConversations] = useState([]);
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState("");
@@ -47,7 +49,17 @@ export default function Messages() {
 
   return (
     <div className="min-h-screen bg-slate-100 p-0 md:p-6">
-      <div className="mx-auto flex h-screen max-h-[920px] max-w-7xl overflow-hidden bg-white shadow-xl md:h-[calc(100vh-48px)] md:rounded-3xl md:border md:border-slate-200">
+      <div className="mx-auto flex h-12 max-w-7xl items-center px-4 md:px-0">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </button>
+      </div>
+      <div className="mx-auto flex h-[calc(100vh-48px)] max-h-[920px] max-w-7xl overflow-hidden bg-white shadow-xl md:h-[calc(100vh-96px)] md:rounded-3xl md:border md:border-slate-200">
         <div className={`${selected ? "hidden md:flex" : "flex"} min-w-0 flex-1 md:flex-none`}>
           <ConversationList
             conversations={conversations}

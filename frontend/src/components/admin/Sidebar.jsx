@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import MessagesButton from "../MessagesButton";
 
 const links = [
   { to: "/admin/dashboard", label: "Dashboard" },
@@ -29,6 +30,7 @@ function Sidebar() {
             {l.label}
           </NavLink>
         ))}
+        <MessagesButton className="w-full justify-start border-0 bg-transparent px-4 py-2 text-left text-white shadow-none hover:bg-gray-700 hover:text-white" />
       </nav>
     </aside>
   );

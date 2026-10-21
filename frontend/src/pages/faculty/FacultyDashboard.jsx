@@ -7,6 +7,7 @@ import {
   getMyRoomBookings,
 } from "../../api/roomBooking.api";
 import ViewProfile from "../../components/profile/ViewProfile";
+import MessagesButton from "../../components/MessagesButton";
 import {
   Badge,
   Button,
@@ -246,23 +247,26 @@ export default function FacultyDashboard() {
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
           <div className="flex items-center justify-between">
-            <TabsList className="h-12 rounded-xl border bg-muted/60 p-1 shadow-sm">
-              <TabsTrigger
-                value="dashboard"
-                className="flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm"
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                Dashboard
-              </TabsTrigger>
+            <div className="flex flex-wrap items-center gap-3">
+              <TabsList className="h-12 rounded-xl border bg-muted/60 p-1 shadow-sm">
+                <TabsTrigger
+                  value="dashboard"
+                  className="flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  Dashboard
+                </TabsTrigger>
 
-              <TabsTrigger
-                value="profile"
-                className="flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm"
-              >
-                <UserCircle2 className="h-4 w-4" />
-                My Profile
-              </TabsTrigger>
-            </TabsList>
+                <TabsTrigger
+                  value="profile"
+                  className="flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm"
+                >
+                  <UserCircle2 className="h-4 w-4" />
+                  My Profile
+                </TabsTrigger>
+              </TabsList>
+              <MessagesButton />
+            </div>
 
             <div className="hidden md:flex items-center gap-2 rounded-full border bg-background px-3 py-1.5 shadow-sm">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>

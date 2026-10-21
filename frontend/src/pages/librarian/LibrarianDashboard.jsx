@@ -11,6 +11,7 @@ import {
 } from "../../api/library.api";
 import { useNavigate } from "react-router-dom";
 import ViewProfile from "../../components/profile/ViewProfile";
+import MessagesButton from "../../components/MessagesButton";
 import {
   Badge,
   Button,
@@ -222,23 +223,26 @@ export default function LibrarianDashboard() {
 
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-          <TabsList className="h-12 rounded-xl bg-slate-100 p-1">
-            <TabsTrigger
-              value="dashboard"
-              className="gap-2 rounded-lg px-5 data-[state=active]:bg-white data-[state=active]:shadow-sm"
-            >
-              <LayoutDashboard className="h-4 w-4" />
-              Dashboard
-            </TabsTrigger>
+          <div className="flex flex-wrap items-center gap-3">
+            <TabsList className="h-12 rounded-xl bg-slate-100 p-1">
+              <TabsTrigger
+                value="dashboard"
+                className="gap-2 rounded-lg px-5 data-[state=active]:bg-white data-[state=active]:shadow-sm"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                Dashboard
+              </TabsTrigger>
 
-            <TabsTrigger
-              value="profile"
-              className="gap-2 rounded-lg px-5 data-[state=active]:bg-white data-[state=active]:shadow-sm"
-            >
-              <UserCircle2 className="h-4 w-4" />
-              My Profile
-            </TabsTrigger>
-          </TabsList>
+              <TabsTrigger
+                value="profile"
+                className="gap-2 rounded-lg px-5 data-[state=active]:bg-white data-[state=active]:shadow-sm"
+              >
+                <UserCircle2 className="h-4 w-4" />
+                My Profile
+              </TabsTrigger>
+            </TabsList>
+            <MessagesButton />
+          </div>
         </Tabs>
 
         {/* Profile Tab */}

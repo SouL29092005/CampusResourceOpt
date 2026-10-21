@@ -9,6 +9,7 @@ import {
   cancelBooking,
 } from "../../api/lab.api";
 import ViewProfile from "../../components/profile/ViewProfile";
+import MessagesButton from "../../components/MessagesButton";
 
 import {
   Card,
@@ -247,23 +248,26 @@ export default function StudentDashboard() {
 
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="rounded-2xl bg-slate-100 p-2 py-6">
-            <TabsTrigger
-              value="dashboard"
-              className="cursor-pointer rounded-xl px-8 py-4 text-base font-medium"
-            >
-              <LayoutDashboard className="mr-2 h-5 w-5" />
-              Dashboard
-            </TabsTrigger>
+          <div className="flex flex-wrap items-center gap-3">
+            <TabsList className="rounded-2xl bg-slate-100 p-2 py-6">
+              <TabsTrigger
+                value="dashboard"
+                className="cursor-pointer rounded-xl px-8 py-4 text-base font-medium"
+              >
+                <LayoutDashboard className="mr-2 h-5 w-5" />
+                Dashboard
+              </TabsTrigger>
 
-            <TabsTrigger
-              value="profile"
-              className="cursor-pointer rounded-xl px-8 py-4 text-base font-medium"
-            >
-              <User className="mr-2 h-5 w-5" />
-              My Profile
-            </TabsTrigger>
-          </TabsList>
+              <TabsTrigger
+                value="profile"
+                className="cursor-pointer rounded-xl px-8 py-4 text-base font-medium"
+              >
+                <User className="mr-2 h-5 w-5" />
+                My Profile
+              </TabsTrigger>
+            </TabsList>
+            <MessagesButton />
+          </div>
         </Tabs>
 
         {/* Profile Tab */}
