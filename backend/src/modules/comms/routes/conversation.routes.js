@@ -4,7 +4,8 @@ import {
     createConversationController,
     getConversations,
     getConversation,
-    removeConversation
+    removeConversation,
+    clearConversation
 } from "../controllers/conversation.controller.js";
 
 import { protect } from "../../../middlewares/auth.middleware.js";
@@ -37,6 +38,12 @@ router.get(
 
 
 // Delete conversation
+router.delete(
+    "/:conversationId/messages",
+    protect,
+    clearConversation
+);
+
 router.delete(
     "/:conversationId",
     protect,

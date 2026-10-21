@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { createConversation, getConversations } from "../api/conversation.api";
+import {
+  createConversation,
+  clearConversation,
+  deleteConversation,
+  getConversations,
+} from "../api/conversation.api";
 import { getMyProfile } from "../api/profile.api";
 import { connectSocket, disconnectSocket } from "../socket/commsSocket";
 import ConversationList from "../components/messaging/ConversationList";
@@ -11,6 +16,7 @@ export default function Messages() {
   const navigate = useNavigate();
   const [conversations, setConversations] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [chatRefreshKey, setChatRefreshKey] = useState(0);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -31,6 +37,37 @@ export default function Messages() {
     ]);
     setSelected(conversation);
     return conversation;
+  };
+
+  const handleDeleteConversation = async (conversation) => {
+    try {
+      await deleteConversation(conversation._id);
+      const remaining = conversations.filter((item) => item._id !== conversation._id);
+      setConversations(remaining);
+      setSelected((current) =>
+        current?._id === conversation._id ? remaining[0] || null : current,
+      );
+      setError("");
+    } catch (err) {
+      setError(err.response?.data?.message || "Unable to delete conversation");
+    }
+  };
+
+  const handleClearConversation = async (conversation) => {
+    try {
+      await clearConversation(conversation._id);
+      const cleared = { ...conversation, lastMessage: null, lastMessageAt: null };
+      setConversations((existing) =>
+        existing.map((item) => item._id === conversation._id ? cleared : item),
+      );
+      setSelected((current) => current?._id === conversation._id ? cleared : current);
+      if (selected?._id === conversation._id) {
+        setChatRefreshKey((current) => current + 1);
+      }
+      setError("");
+    } catch (err) {
+      setError(err.response?.data?.message || "Unable to clear chat");
+    }
   };
 
   useEffect(() => {
@@ -85,10 +122,13 @@ export default function Messages() {
             search={search}
             onSearch={setSearch}
             onCreateConversation={handleCreateConversation}
+            onClearConversation={handleClearConversation}
+            onDeleteConversation={handleDeleteConversation}
           />
         </div>
 
         <ChatWindow
+          key={`${selected?._id || "none"}-${chatRefreshKey}`}
           conversation={selected}
           currentUserId={currentUserId}
           onBack={() => setSelected(null)}

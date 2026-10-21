@@ -41,3 +41,11 @@ export const findUserByEmail = async (email) => {
 
     return response.data;
 };
+
+export const clearConversation = async (conversationId) => {
+    const response = await api.delete(
+        `/conversations/${conversationId}/messages`
+    );
+
+    return response.data;
+};

@@ -1,4 +1,5 @@
 import Conversation from "../models/Conversation.model.js";
+import Message from "../models/Message.model.js";
 import User from "../../users/user.model.js";
 
 export const createConversation = async (currentUserId, otherUserId) => {
@@ -137,7 +138,7 @@ export const deleteConversation = async (
     conversationId,
     userId
 ) => {
-    const conversation = await Conversation.findOneAndDelete({
+    const conversation = await Conversation.findOne({
         _id: conversationId,
         participants: userId
     });
@@ -145,6 +146,31 @@ export const deleteConversation = async (
     if (!conversation) {
         throw new Error("Conversation not found");
     }
+
+    await Message.deleteMany({ conversation: conversationId });
+    await conversation.deleteOne();
+
+    return conversation;
+};
+
+
+export const clearConversationMessages = async (
+    conversationId,
+    userId
+) => {
+    const conversation = await Conversation.findOne({
+        _id: conversationId,
+        participants: userId
+    });
+
+    if (!conversation) {
+        throw new Error("Conversation not found");
+    }
+
+    await Message.deleteMany({ conversation: conversationId });
+    conversation.lastMessage = null;
+    conversation.lastMessageAt = null;
+    await conversation.save();
 
     return conversation;
 };

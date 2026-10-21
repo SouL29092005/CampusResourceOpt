@@ -2,7 +2,8 @@ import {
     createConversation,
     getUserConversations,
     getConversationById,
-    deleteConversation
+    deleteConversation,
+    clearConversationMessages
 } from "../services/conversation.service.js";
 
 
@@ -119,6 +120,28 @@ export const removeConversation = async (req, res) => {
             "Delete conversation error:",
             error
         );
+
+        return res.status(404).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+
+export const clearConversation = async (req, res) => {
+    try {
+        const userId = req.user._id || req.user.id;
+        const { conversationId } = req.params;
+
+        await clearConversationMessages(conversationId, userId);
+
+        return res.status(200).json({
+            success: true,
+            message: "Chat cleared successfully"
+        });
+    } catch (error) {
+        console.error("Clear conversation error:", error);
 
         return res.status(404).json({
             success: false,

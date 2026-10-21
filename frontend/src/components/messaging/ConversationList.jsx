@@ -21,13 +21,34 @@ export default function ConversationList({
   search,
   onSearch,
   onCreateConversation,
+  onClearConversation,
+  onDeleteConversation,
 }) {
   const [showNewConversation, setShowNewConversation] = useState(false);
   const [email, setEmail] = useState("");
   const [foundUser, setFoundUser] = useState(null);
   const [searching, setSearching] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [processingId, setProcessingId] = useState(null);
   const [modalError, setModalError] = useState("");
+
+  const handleClearConversation = async (conversation) => {
+    setProcessingId(conversation._id);
+    try {
+      await onClearConversation(conversation);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleDeleteConversation = async (conversation) => {
+    setProcessingId(conversation._id);
+    try {
+      await onDeleteConversation(conversation);
+    } finally {
+      setProcessingId(null);
+    }
+  };
 
   const handleSearchUser = async (event) => {
     event.preventDefault();
@@ -128,6 +149,9 @@ export default function ConversationList({
               currentUserId={currentUserId}
               active={conversation._id === selectedId}
               onClick={() => onSelect(conversation)}
+              onClear={() => handleClearConversation(conversation)}
+              onDelete={() => handleDeleteConversation(conversation)}
+              processing={processingId === conversation._id}
             />
           ))
         )}
