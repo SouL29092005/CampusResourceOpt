@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getConversations } from "../api/conversation.api";
+import { createConversation, getConversations } from "../api/conversation.api";
 import { getMyProfile } from "../api/profile.api";
 import { connectSocket, disconnectSocket } from "../socket/commsSocket";
 import ConversationList from "../components/messaging/ConversationList";
@@ -16,6 +16,22 @@ export default function Messages() {
   const [error, setError] = useState("");
 
   const [currentUserId, setCurrentUserId] = useState(localStorage.getItem("userId") || "");
+
+  const handleCreateConversation = async (userId) => {
+    const response = await createConversation(userId);
+    const conversation = response?.conversation;
+
+    if (!conversation?._id) {
+      throw new Error("Conversation was not returned by the server");
+    }
+
+    setConversations((existing) => [
+      conversation,
+      ...existing.filter((item) => item._id !== conversation._id),
+    ]);
+    setSelected(conversation);
+    return conversation;
+  };
 
   useEffect(() => {
     connectSocket();
@@ -68,6 +84,7 @@ export default function Messages() {
             onSelect={setSelected}
             search={search}
             onSearch={setSearch}
+            onCreateConversation={handleCreateConversation}
           />
         </div>
 

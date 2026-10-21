@@ -4,10 +4,13 @@ import { allowRoles } from "../../middlewares/role.middleware.js";
 import {
   createUserByAdmin,
   deleteUserByAdmin,
-  getUsersByRole
+  getUsersByRole,
+  searchUserByEmail
 } from "./user.controller.js";
 
 const router = express.Router();
+
+router.get("/search", protect, searchUserByEmail);
 
 // Admin-only routes
 router.post(

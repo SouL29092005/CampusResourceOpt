@@ -126,3 +126,40 @@ export const getUsersByRole = async (req, res) => {
     users: usersWithProfiles
   });
 };
+
+export const searchUserByEmail = async (req, res) => {
+  const email = String(req.query.email || "").trim().toLowerCase();
+
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "Email address is required"
+    });
+  }
+
+  try {
+    const user = await User.findOne({
+      email,
+      _id: { $ne: req.user._id || req.user.id },
+      isActive: true
+    }).select("_id name email role");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "No active user found with that email address"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user
+    });
+  } catch (error) {
+    console.error("Search user by email error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to search for user"
+    });
+  }
+};

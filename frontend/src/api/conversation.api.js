@@ -33,3 +33,11 @@ export const deleteConversation = async (conversationId) => {
 
     return response.data;
 };
+
+export const findUserByEmail = async (email) => {
+    const response = await api.get("/users/search", {
+        params: { email }
+    });
+
+    return response.data;
+};
